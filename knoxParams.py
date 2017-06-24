@@ -264,7 +264,8 @@ intraThlProb=0.1
 netParams.connParams['TC->RE'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0.2/(N_TC*intraThlProb),         # (Destexhe, 1998)        
+    #'weight': 0.2/(N_TC*intraThlProb),         # (Destexhe, 1998)  
+    'weight': 0.4*intraThlProb,         # (Bazhenov et al.,2002)     
     'delay': netParams.axondelay, 
     'synMech': 'AMPA_S',
     'sec': 'soma',
@@ -275,7 +276,8 @@ netParams.connParams['TC->RE'] = {
 netParams.connParams['RE->TC_GABAA'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.02/(N_RE*intraThlProb),         # (Destexhe, 1998)              
+    #'weight': 0.02/(N_RE*intraThlProb),         # (Destexhe, 1998)
+    'weight': 0.2*intraThlProb,         # (Bazhenov et al.,2002)             
     'delay': netParams.axondelay, 
     'synMech': 'GABAA80',
     'sec': 'soma',
@@ -286,7 +288,8 @@ netParams.connParams['RE->TC_GABAA'] = {
 netParams.connParams['RE->TC_GABAB'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.04/(N_RE*intraThlProb),         # (Destexhe, 1998)           
+    #'weight': 0.04/(N_RE*intraThlProb),         # (Destexhe, 1998)
+    'weight': 0.04*intraThlProb,         # (Bazhenov et al.,2002)
     'delay': netParams.axondelay, 
     'synMech': 'GABAB',
     'sec': 'soma',
@@ -297,7 +300,8 @@ netParams.connParams['RE->TC_GABAB'] = {
 netParams.connParams['RE->RE'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0.2/(N_RE*intraThlProb),            # (Destexhe, 1998)       
+    #'weight': 0.2/(N_RE*intraThlProb),            # (Destexhe, 1998)
+    'weight': 0.2*intraThlProb,            # (Bazhenov et al.,2002)  
     'delay': netParams.axondelay, 
     'synMech': 'GABAA80',
     'sec': 'soma',
