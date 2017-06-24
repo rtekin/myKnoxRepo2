@@ -86,7 +86,6 @@ kl = new kleak()
 	cao = 2 
 	eca = 120 
 	gcabar_it = 0.002
-	shift_it = 2
 
 
 	insert iar		// h-current
@@ -98,7 +97,7 @@ kl = new kleak()
 	k4_iar = 0.001		// decay of protein binding on Ih channel
 	Pc_iar = 0.01		// half-activation of binding on Ih channel
 	ginc_iar = 2		// augm of conductance of bound Ih
-	ghbar_iar = 1.7e-5 // 2e-5	// low Ih for slow oscillations
+	ghbar_iar = 2e-5	// low Ih for slow oscillations
 
 
 	insert cad		// calcium decay

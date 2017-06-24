@@ -80,7 +80,7 @@ proc init() { local v_potassium, v_sodium
 	shift_it2 = 2
 	qm_it2 = 2.5		// low q10
 	qh_it2 = 2.5
-	gcabar_it2 = 2e-3 // 0.003	// strong
+	gcabar_it2 = 0.003	// strong
 
 	insert cad		// calcium decay
 	depth_cad = 1
