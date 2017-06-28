@@ -62,7 +62,9 @@ simConfig = specs.SimConfig()   # object of class SimConfig to store the simulat
 ###############################################################################
 # NETWORK PARAMETERS
 ###############################################################################
-N=100; N_PY=N; N_IN=N; N_TC=N; N_RE=N;
+#N=100; N_PY=N; N_IN=N; N_TC=N; N_RE=N;
+N=100; N_PY=N; N_IN=N/2; N_TC=N/4; N_RE=N/4;
+
 netParams.narrowdiam = 5
 netParams.widediam = 10
 
@@ -105,8 +107,8 @@ netParams.cellParams['INrule'] = cellRule
 """
 
 ### TC (Destexhe et al., 1996; Bazhenov et al.,2002)
-cellRule = netParams.importCellParams(label='TCrule', conds={'cellType': 'TC', 'cellModel': 'HH_TC'}, fileName='TC.tem', cellName='sTC')
-#cellRule = netParams.importCellParams(label='TCrule', conds={'cellType': 'TC', 'cellModel': 'HH_TC'}, fileName='TC.py', cellName='sTC')
+#cellRule = netParams.importCellParams(label='TCrule', conds={'cellType': 'TC', 'cellModel': 'HH_TC'}, fileName='TC.tem', cellName='sTC')
+cellRule = netParams.importCellParams(label='TCrule', conds={'cellType': 'TC', 'cellModel': 'HH_TC'}, fileName='TC2.tem', cellName='sTC')
 """
 cellRule['secs']['soma']['mechs']['hh2']={'gnabar': 0.09, 'gkbar': 0.01, 'vtraub': -25.0}
 cellRule['secs']['soma']['mechs']['pas']={'g': 1e-5, 'e': -70-20}
@@ -119,7 +121,8 @@ cellRule['secs']['soma']['pointps']['kleak_0']['gmax']= 3e-5 # 0-0.03 mS/cm^2 fo
 netParams.cellParams['TCrule'] = cellRule
 
 ### RE (Destexhe et al., 1996; Bazhenov et al.,2002)
-cellRule = netParams.importCellParams(label='RErule', conds={'cellType': 'RE', 'cellModel': 'HH_RE'}, fileName='RE.tem', cellName='sRE')
+#cellRule = netParams.importCellParams(label='RErule', conds={'cellType': 'RE', 'cellModel': 'HH_RE'}, fileName='RE.tem', cellName='sRE')
+cellRule = netParams.importCellParams(label='RErule', conds={'cellType': 'RE', 'cellModel': 'HH_RE'}, fileName='RE2.tem', cellName='sRE')
 """
 cellRule['secs']['soma']['mechs']['hh2']={'gnabar': 0.1, 'gkbar': 0.01, 'vtraub': -55.0}
 cellRule['secs']['soma']['mechs']['pas']={'g': 5e-5, 'e': -77}
@@ -195,7 +198,7 @@ netParams.connParams['PY->PY_AMPA'] = {
 netParams.connParams['PY->IN_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0.2/(N_PY*intraCrxProb),            # (Destexhe, 1998)       
+    'weight': 0.2/(N_IN*intraCrxProb),            # (Destexhe, 1998)       
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
@@ -221,7 +224,7 @@ netParams.connParams['PY->PY_NMDA'] = {
 netParams.connParams['PY->IN_NMDA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0*0.25*0.2/(N_PY*intraCrxProb),            # (Destexhe, 1998)        
+    'weight': 0*0.25*0.2/(N_IN*intraCrxProb),            # (Destexhe, 1998)        
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'NMDA',
@@ -234,7 +237,7 @@ netParams.connParams['PY->IN_NMDA'] = {
 netParams.connParams['IN->PY_GABAA'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.15/(N_IN*intraCrxProb),         # (Destexhe, 1998)
+    'weight': 0.15/(N_PY*intraCrxProb),         # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'GABAA80',
@@ -247,7 +250,7 @@ netParams.connParams['IN->PY_GABAA'] = {
 netParams.connParams['IN->PY_GABAB'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.03/(N_IN*intraCrxProb),         # (Destexhe, 1998)
+    'weight': 0.03/(N_PY*intraCrxProb),         # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'GABAB',
@@ -264,7 +267,8 @@ intraThlProb=0.1
 netParams.connParams['TC->RE'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0.2/(N_TC*intraThlProb),         # (Destexhe, 1998)        
+    #'weight': 0.2/(N_RE*intraThlProb),         # (Destexhe, 1998)  
+    'weight': 0.4*intraThlProb,         # (Bazhenov et al.,2002)     
     'delay': netParams.axondelay, 
     'synMech': 'AMPA_S',
     'sec': 'soma',
@@ -275,9 +279,10 @@ netParams.connParams['TC->RE'] = {
 netParams.connParams['RE->TC_GABAA'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.02/(N_RE*intraThlProb),         # (Destexhe, 1998)              
+    #'weight': 0.02/(N_TC*intraThlProb),         # (Destexhe, 1998)
+    'weight': 0.2*intraThlProb,         # (Bazhenov et al.,2002)             
     'delay': netParams.axondelay, 
-    'synMech': 'GABAA80',
+    'synMech': 'GABAA85',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.4}   # (Bazhenov et al.,2002; Wei et al., 2016)
@@ -286,7 +291,8 @@ netParams.connParams['RE->TC_GABAA'] = {
 netParams.connParams['RE->TC_GABAB'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.04/(N_RE*intraThlProb),         # (Destexhe, 1998)           
+    #'weight': 0.04/(N_TC*intraThlProb),         # (Destexhe, 1998)
+    'weight': 0.04*intraThlProb,         # (Bazhenov et al.,2002)
     'delay': netParams.axondelay, 
     'synMech': 'GABAB',
     'sec': 'soma',
@@ -297,7 +303,8 @@ netParams.connParams['RE->TC_GABAB'] = {
 netParams.connParams['RE->RE'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0.2/(N_RE*intraThlProb),            # (Destexhe, 1998)       
+    #'weight': 0.2/(N_RE*intraThlProb),            # (Destexhe, 1998)
+    'weight': 0.2*intraThlProb,            # (Bazhenov et al.,2002)  
     'delay': netParams.axondelay, 
     'synMech': 'GABAA80',
     'sec': 'soma',
@@ -306,58 +313,58 @@ netParams.connParams['RE->RE'] = {
     'probability': intraThlProb}  
 
 ################# thalamo-cortical projections ################################
-ThlCrxProb=0.2
+ThlCrxProb=0.2*0.5
 
 netParams.connParams['PY->TC'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.01/(N_PY*ThlCrxProb),           # (Destexhe, 1998)    
+    'weight': 0.01/(N_TC*ThlCrxProb),           # (Destexhe, 1998)    
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.4}  # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': ThlCrxProb}
+    'probability': 0*ThlCrxProb}
     #'connList': smallWorldConn(N_PY,N_TC,p,K)} 
 
 netParams.connParams['PY->RE'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 1.2/(N_PY*ThlCrxProb),           # (Destexhe, 1998)  
+    'weight': 1.2/(N_RE*ThlCrxProb),           # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.4} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': ThlCrxProb}
+    'probability': 0*ThlCrxProb}
     #'connList': smallWorldConn(N_PY,N_RE,p,K)}  
 
 netParams.connParams['TC->PY'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 1.2/(N_TC*ThlCrxProb),        # (Destexhe, 1998)   
+    'weight': 1.2/(N_PY*ThlCrxProb),        # (Destexhe, 1998)   
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.1} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': ThlCrxProb}
+    'probability': 0*ThlCrxProb}
     #'connList': smallWorldConn(N_TC,N_PY,p,K)}
 
 netParams.connParams['TC->IN'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0.4/(N_TC*ThlCrxProb),        # (Destexhe, 1998)  
+    'weight': 0.4/(N_IN*ThlCrxProb),        # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.04} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': ThlCrxProb}
+    'probability': 0*ThlCrxProb}
     #'connList': smallWorldConn(N_TC,N_IN,p,K)}   
 
 
