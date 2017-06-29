@@ -99,8 +99,7 @@ netParams.cellParams['INrule'] = cellRule
 """
 
 ### TC (Destexhe et al., 1996; Bazhenov et al.,2002)
-#cellRule = netParams.importCellParams(label='TCrule', conds={'cellType': 'TC', 'cellModel': 'HH_TC'}, fileName='TC.tem', cellName='sTC')
-cellRule = netParams.importCellParams(label='TCrule', conds={'cellType': 'TC', 'cellModel': 'HH_TC'}, fileName='TC2.tem', cellName='sTC')
+cellRule = netParams.importCellParams(label='TCrule', conds={'cellType': 'TC', 'cellModel': 'HH_TC'}, fileName='TC.tem', cellName='sTC')
 """
 cellRule['secs']['soma']['mechs']['hh2']={'gnabar': 0.09, 'gkbar': 0.01, 'vtraub': -25.0}
 cellRule['secs']['soma']['mechs']['pas']={'g': 1e-5, 'e': -70-20}
@@ -109,12 +108,11 @@ cellRule['secs']['soma']['mechs']['iar']={'shift': 0.0, 'ghbar': 1.5e-5}
 cellRule['secs']['soma']['mechs']['cad']={'taur': 5.0, 'depth': 1.0, 'kt': 0.0, 'cainf': 2.4e-4, 'kd': 0.0}
 cellRule['secs']['soma']['ions']['ca']={'e': 120}
 cellRule['secs']['soma']['pointps']['kleak_0']['gmax']= 3e-5 # 0-0.03 mS/cm^2 for TC
-"""
-netParams.cellParams['TCrule'] = cellRule
 
+netParams.cellParams['TCrule'] = cellRule
+"""
 ### RE (Destexhe et al., 1996; Bazhenov et al.,2002)
-#cellRule = netParams.importCellParams(label='RErule', conds={'cellType': 'RE', 'cellModel': 'HH_RE'}, fileName='RE.tem', cellName='sRE')
-cellRule = netParams.importCellParams(label='RErule', conds={'cellType': 'RE', 'cellModel': 'HH_RE'}, fileName='RE2.tem', cellName='sRE')
+cellRule = netParams.importCellParams(label='RErule', conds={'cellType': 'RE', 'cellModel': 'HH_RE'}, fileName='RE.tem', cellName='sRE')
 """
 cellRule['secs']['soma']['mechs']['hh2']={'gnabar': 0.1, 'gkbar': 0.01, 'vtraub': -55.0}
 cellRule['secs']['soma']['mechs']['pas']={'g': 5e-5, 'e': -77}
@@ -123,9 +121,9 @@ cellRule['secs']['soma']['mechs']['cad']={'taur': 5.0, 'depth': 1.0, 'kt': 0.0, 
 cellRule['secs']['soma']['ions']['ca']={'e': 120}
 cellRule['secs']['soma']['pointps']['kleak_0']['gmax']= 5e-6  # 0.005 mS/cm^2 for RE
 cellRule['secs']['soma']['vinit']=-80
-"""
-netParams.cellParams['RErule'] = cellRule
 
+netParams.cellParams['RErule'] = cellRule
+"""
 ###############################################################################
 # Synaptic mechanism parameters
 ###############################################################################
@@ -429,18 +427,13 @@ simConfig.verbose = False  # show detailed messages
 
 # Recording 
 simConfig.recordCells = []  # which cells to record from
-"""
-simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'},
-                          'V_dend':{'sec':'dend','loc':0.5,'var':'v'},
-                          'AMPA_i': {'sec':'soma', 'loc':'0.5', 'synMech':'AMPA', 'var':'AMPA_i'}}
-"""
 simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'}}
 
 simConfig.recordStim = True  # record spikes of cell stims
 simConfig.recordStep = 0.1 # Step size in ms to save data (eg. V traces, LFP, etc)
 
 # Saving
-simConfig.simLabel = "trial1"
+simConfig.simLabel = "knox"
 simConfig.saveFolder = "data_knox_v1"
 simConfig.filename = 'knox_v1'  # Set file output name
 simConfig.saveFileStep = 1000 # step size in ms to save data to disk
@@ -475,5 +468,3 @@ simConfig.gababTCfield = 0
 simConfig.runStopAt = simConfig.duration
 
 sim.createSimulateAnalyze(netParams = netParams, simConfig = simConfig)
-
-#sim.net.cells[99].conns[0]['hNetCon']
