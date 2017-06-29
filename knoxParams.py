@@ -180,191 +180,198 @@ netParams.stimTargetParams['bgThl'] = {'source': 'bkg', 'conds': {'cellType': ['
 ####################### intra cortikal projections ############################
 p=1.0 # small-world-ness param
 K=0.1 # connectivity param
-intraCrxProb=0.1
+#intraCrxProb=0.1
+PY_PY_AMPA_Prob=0.1;PY_IN_AMPA_Prob=0.05;
+PY_PY_NMDA_Prob=0.1;PY_IN_NMDA_Prob=0.05;
+IN_PY_GABAA_Prob=0.1;IN_PY_GABAB_Prob=0.1;
 
 netParams.connParams['PY->PY_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.6/(N_PY*intraCrxProb),            # (Destexhe, 1998)
+    'weight': 1.5*0.6/(N_PY*PY_PY_AMPA_Prob),            # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'dend',                          # section to connect to
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.05} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraCrxProb}
+    'probability': PY_PY_AMPA_Prob}
     #'connList': smallWorldConn(N_PY,N_PY,p,K)}   
 
 netParams.connParams['PY->IN_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0.2/(N_IN*intraCrxProb),            # (Destexhe, 1998)       
+    'weight': 0.2/(N_IN*PY_IN_AMPA_Prob),            # (Destexhe, 1998)       
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.02} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraCrxProb}
+    'probability': PY_IN_AMPA_Prob}
     #'connList': smallWorldConn(N_PY,N_IN,p,K)}  
 
 netParams.connParams['PY->PY_NMDA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0*0.25*0.6/(N_PY*intraCrxProb),            # (Destexhe, 1998)       
+    'weight': 0.25*0.6/(N_PY*PY_PY_NMDA_Prob),            # (Destexhe, 1998)       
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'NMDA',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.05}  # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraCrxProb}
+    'probability': 0*PY_PY_NMDA_Prob}
     #'connList': smallWorldConn(N_PY,N_PY,p,K)}   
 
 netParams.connParams['PY->IN_NMDA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0*0.25*0.2/(N_IN*intraCrxProb),            # (Destexhe, 1998)        
+    'weight': 0.25*0.2/(N_IN*PY_IN_NMDA_Prob),            # (Destexhe, 1998)        
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'NMDA',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.02} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraCrxProb}
+    'probability': 0*PY_IN_NMDA_Prob}
     #'connList': smallWorldConn(N_PY,N_IN,p,K)}  
 
 netParams.connParams['IN->PY_GABAA'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.15/(N_PY*intraCrxProb),         # (Destexhe, 1998)
+    'weight': 0.15/(N_PY*IN_PY_GABAA_Prob),         # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'GABAA80',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.05} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraCrxProb}
+    'probability': IN_PY_GABAA_Prob}
     #'connList': smallWorldConn(N_IN,N_PY,p,K)}  
 
 netParams.connParams['IN->PY_GABAB'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.03/(N_PY*intraCrxProb),         # (Destexhe, 1998)
+    'weight': 0.03/(N_PY*IN_PY_GABAB_Prob),         # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'GABAB',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.05} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraCrxProb}
+    'probability': IN_PY_GABAB_Prob}
     #'connList': smallWorldConn(N_IN,N_PY,p,K)}  
 
 
 ###################### intra thalamic projections #############################
-intraThlProb=0.1
+#intraThlProb=0.1
+TC_RE_AMPA_Prob=0.1;RE_TC_GABAA_Prob=0.1;
+RE_TC_GABAB_Prob=0.1;RE_RE_GABAA_Prob=0.1;
 
 netParams.connParams['TC->RE'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'RE'},
-    #'weight': 0.2/(N_RE*intraThlProb),         # (Destexhe, 1998)  
-    'weight': 0.4*intraThlProb,         # (Bazhenov et al.,2002)     
+    'weight': 0.2/(N_RE*TC_RE_AMPA_Prob),         # (Destexhe, 1998)  
+    #'weight': 0.4*intraThlProb,         # (Bazhenov et al.,2002)     
     'delay': netParams.axondelay, 
     'synMech': 'AMPA_S',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.4}  # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraThlProb}  
+    'probability': TC_RE_AMPA_Prob}  
 
 netParams.connParams['RE->TC_GABAA'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    #'weight': 0.02/(N_TC*intraThlProb),         # (Destexhe, 1998)
-    'weight': 0.2*intraThlProb,         # (Bazhenov et al.,2002)             
+    'weight': 2*0.02/(N_TC*RE_TC_GABAA_Prob),         # (Destexhe, 1998)
+    #'weight': 0.2*intraThlProb,         # (Bazhenov et al.,2002)             
     'delay': netParams.axondelay, 
     'synMech': 'GABAA85',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.4}   # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraThlProb}  
+    'probability': RE_TC_GABAA_Prob}  
 
 netParams.connParams['RE->TC_GABAB'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    #'weight': 0.04/(N_TC*intraThlProb),         # (Destexhe, 1998)
-    'weight': 0.04*intraThlProb,         # (Bazhenov et al.,2002)
+    'weight': 0.25*0.04/(N_TC*RE_TC_GABAB_Prob),         # (Destexhe, 1998)
+    #'weight': 0.04*intraThlProb,         # (Bazhenov et al.,2002)
     'delay': netParams.axondelay, 
     'synMech': 'GABAB',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.4}  # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraThlProb}  
+    'probability': RE_TC_GABAB_Prob}  
 
 netParams.connParams['RE->RE'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'RE'},
-    #'weight': 0.2/(N_RE*intraThlProb),            # (Destexhe, 1998)
-    'weight': 0.2*intraThlProb,            # (Bazhenov et al.,2002)  
+    'weight': 0.25*0.2/(N_RE*RE_RE_GABAA_Prob),            # (Destexhe, 1998)
+    #'weight': 0.2*intraThlProb,            # (Bazhenov et al.,2002)  
     'delay': netParams.axondelay, 
     'synMech': 'GABAA80',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0.4}   # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': intraThlProb}  
+    'probability': RE_RE_GABAA_Prob}  
 
 ################# thalamo-cortical projections ################################
-ThlCrxProb=0.2*0.5
+#ThlCrxProb=0.2
+PY_TC_AMPA_Prob=0.4;PY_RE_AMPA_Prob=0.4;
+TC_PY_AMPA_Prob=0.2;TC_IN_AMPA_Prob=0.1;
 
 netParams.connParams['PY->TC'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.01/(N_TC*ThlCrxProb),           # (Destexhe, 1998)    
+    'weight': 0.01/(N_TC*PY_TC_AMPA_Prob),           # (Destexhe, 1998)    
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.4}  # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': 0*ThlCrxProb}
+    'probability': PY_TC_AMPA_Prob}
     #'connList': smallWorldConn(N_PY,N_TC,p,K)} 
 
 netParams.connParams['PY->RE'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 1.2/(N_RE*ThlCrxProb),           # (Destexhe, 1998)  
+    'weight': 1.2/(N_RE*PY_RE_AMPA_Prob),           # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'soma',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.4} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': 0*ThlCrxProb}
+    'probability': PY_RE_AMPA_Prob}
     #'connList': smallWorldConn(N_PY,N_RE,p,K)}  
 
 netParams.connParams['TC->PY'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 1.2/(N_PY*ThlCrxProb),        # (Destexhe, 1998)   
+    'weight': 2*1.2/(N_PY*TC_PY_AMPA_Prob),        # (Destexhe, 1998)   
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.1} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': 0*ThlCrxProb}
+    'probability': TC_PY_AMPA_Prob}
     #'connList': smallWorldConn(N_TC,N_PY,p,K)}
 
 netParams.connParams['TC->IN'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0.4/(N_IN*ThlCrxProb),        # (Destexhe, 1998)  
+    'weight': 0.4/(N_IN*TC_IN_AMPA_Prob),        # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     'sec': 'dend',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*0.04} # (Bazhenov et al.,2002; Wei et al., 2016)
-    'probability': 0*ThlCrxProb}
+    'probability': TC_IN_AMPA_Prob}
     #'connList': smallWorldConn(N_TC,N_IN,p,K)}   
 
 
@@ -384,7 +391,7 @@ simConfig.Dt = 0.1
 simConfig.steps_per_ms = 1/simConfig.Dt
 simConfig.npoints = 30000
 
-simConfig.duration = 10*1000 # simConfig.trans + simConfig.npoints * simConfig.Dt # Duration of the simulation, in ms
+simConfig.duration = 20*1000 # simConfig.trans + simConfig.npoints * simConfig.Dt # Duration of the simulation, in ms
 simConfig.dt = 0.1 # Internal integration timestep to use
 simConfig.hParams['celsius'] = 36
 simConfig.hParams['v_init'] = -70
@@ -440,3 +447,4 @@ simConfig.runStopAt = simConfig.duration
 
 sim.createSimulateAnalyze(netParams = netParams, simConfig = simConfig)
 
+#sim.net.cells[99].conns[0]['hNetCon']

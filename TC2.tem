@@ -109,7 +109,7 @@ kl = new kleak()
 	Pc_iar = 0.01		// half-activation of binding on Ih channel
 	ginc_iar = 2		// augm of conductance of bound Ih  // 2.2 // Wei, Y., Krishnan, G. P., & Bazhenov, M. (2016)  // 
 	//ginc_iar = 1.25 		// augm of conductance of bound Ih
-	ghbar_iar = 1.7e-5  // 1.5e-5	 // low Ih for slow oscillations
+	ghbar_iar = 1.5e-5  // 1.5e-5	 // low Ih for slow oscillations
 
 
 	insert cad		// calcium decay
