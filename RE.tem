@@ -92,7 +92,7 @@ proc init() { local v_potassium, v_sodium
 	taubase_it2 = 85
 	qm_it2 = 2.5*2		// low q10 // 5 // Wei, Y., Krishnan, G. P., & Bazhenov, M. (2016) // 
 	qh_it2 = 2.5+0.5 // 3 // Wei, Y., Krishnan, G. P., & Bazhenov, M. (2016) // 
-	gcabar_it2 = 2.6e-3 // 2.3e-3	// strong - original
+	gcabar_it2 = 2e-3 // 2.3e-3	// strong - original
 
 	insert cad		// calcium decay
 	depth_cad = 1

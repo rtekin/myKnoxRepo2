@@ -65,13 +65,13 @@ kl = new kleak()
 	Ra = 100
 
 	insert pas		// leak current 
-	e_pas = -70+(-20*0)		// original from Rinzel
+	e_pas = -70		// original from Rinzel
 	//e_pas = -100
 	g_pas = 1e-5		//1e-5
 
 	kl.loc(0.5)		// K-leak
 	Erev_kleak = v_potassium+0*5
-	kl.gmax = 3e-3 // 3–5* nS // 0.004		// (uS)
+	kl.gmax = 5e-3 // 3–5* nS // 0.004		// (uS)
 				// conversion: x(uS) = x(mS/cm2)*29000e-8*1e3
 				//		     = x(mS/cm2) * 0.29
 

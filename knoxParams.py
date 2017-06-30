@@ -55,7 +55,7 @@ simConfig = specs.SimConfig()   # object of class SimConfig to store the simulat
 # NETWORK PARAMETERS
 ###############################################################################
 #N=100; N_PY=N; N_IN=N; N_TC=N; N_RE=N;
-N=100; N_PY=N; N_IN=N/2; N_TC=N/4; N_RE=N/4;
+N=100; N_PY=N; N_IN=N/4; N_TC=N/2; N_RE=N/2;
 
 netParams.narrowdiam = 5
 netParams.widediam = 10
@@ -172,14 +172,14 @@ netParams.stimTargetParams['bgThl'] = {'source': 'bkg', 'conds': {'cellType': ['
 p=1.0; pCrx=p; pThl=p; pThlCrx=p # small-world-ness param
 #K=0.1 # connectivity param
 #intraCrxProb=0.1
-PY_PY_AMPA_Prob=0.1;PY_IN_AMPA_Prob=0.05;
-PY_PY_NMDA_Prob=0.1;PY_IN_NMDA_Prob=0.05;
+PY_PY_AMPA_Prob=0.1;PY_IN_AMPA_Prob=0.1;
+PY_PY_NMDA_Prob=0.1;PY_IN_NMDA_Prob=0.1;
 IN_PY_GABAA_Prob=0.1;IN_PY_GABAB_Prob=0.1;
 
 netParams.connParams['PY->PY_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 1.5*0.6/(N_PY*PY_PY_AMPA_Prob),            # (Destexhe, 1998)
+    'weight': 0.6/(N_PY*PY_PY_AMPA_Prob),            # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
@@ -250,7 +250,7 @@ netParams.connParams['IN->PY_GABAB'] = {
 
 
 ###################### intra thalamic projections #############################
-#intraThlProb=0.1
+intraThlProb=0.1
 TC_RE_AMPA_Prob=0.1;RE_TC_GABAA_Prob=0.1;
 RE_TC_GABAB_Prob=0.1;RE_RE_GABAA_Prob=0.1;
 
@@ -283,7 +283,7 @@ netParams.connParams['RE->TC_GABAA'] = {
 netParams.connParams['RE->TC_GABAB'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.25*0.04/(N_TC*RE_TC_GABAB_Prob),         # (Destexhe, 1998)
+    'weight': 0.04/(N_TC*RE_TC_GABAB_Prob),         # (Destexhe, 1998)
     #'weight': 0.04*intraThlProb,         # (Bazhenov et al.,2002)
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -296,7 +296,7 @@ netParams.connParams['RE->TC_GABAB'] = {
 netParams.connParams['RE->RE'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0.25*0.2/(N_RE*RE_RE_GABAA_Prob),            # (Destexhe, 1998)
+    'weight': 0.2/(N_RE*RE_RE_GABAA_Prob),            # (Destexhe, 1998)
     #'weight': 0.2*intraThlProb,            # (Bazhenov et al.,2002)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -308,13 +308,13 @@ netParams.connParams['RE->RE'] = {
 
 ################# thalamo-cortical projections ################################
 #ThlCrxProb=0.2
-PY_TC_AMPA_Prob=0.4;PY_RE_AMPA_Prob=0.4;
-TC_PY_AMPA_Prob=0.2;TC_IN_AMPA_Prob=0.1;
+PY_TC_AMPA_Prob=0.2;PY_RE_AMPA_Prob=0.2;
+TC_PY_AMPA_Prob=0.2;TC_IN_AMPA_Prob=0.2;
 
 netParams.connParams['PY->TC'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.01/(N_TC*PY_TC_AMPA_Prob),           # (Destexhe, 1998)    
+    'weight': 0.5*0.01/(N_TC*PY_TC_AMPA_Prob),           # (Destexhe, 1998)    
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
@@ -326,7 +326,7 @@ netParams.connParams['PY->TC'] = {
 netParams.connParams['PY->RE'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 1.2/(N_RE*PY_RE_AMPA_Prob),           # (Destexhe, 1998)  
+    'weight': 1.5*1.2/(N_RE*PY_RE_AMPA_Prob),           # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
@@ -350,7 +350,7 @@ netParams.connParams['TC->PY'] = {
 netParams.connParams['TC->IN'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0.4/(N_IN*TC_IN_AMPA_Prob),        # (Destexhe, 1998)  
+    'weight': 0.5*0.4/(N_IN*TC_IN_AMPA_Prob),        # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
