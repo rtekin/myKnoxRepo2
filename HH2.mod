@@ -23,7 +23,6 @@ NEURON {
 	RANGE m_inf, h_inf, n_inf
 	RANGE tau_m, tau_h, tau_n
 	RANGE m_exp, h_exp, n_exp
-	RANGE q10
 }
 
 
@@ -42,7 +41,6 @@ PARAMETER {
 	dt              (ms)
 	v               (mV)
 	vtraub  = -63   (mV)
-	q10		= 3.0 	: Q10 of inactivation
 }
 
 STATE {
@@ -95,9 +93,8 @@ INITIAL {
 :
 :  Q10 was assumed to be 3 for both currents
 :
-:	tadj = 3.0 ^ ((celsius-36)/ 10 )
-	tadj = q10 ^ ((celsius-36)/ 10 )
-	
+	tadj = 3.0 ^ ((celsius-36)/ 10 )
+
 	m = 0
 	h = 0
 	n = 0

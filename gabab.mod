@@ -185,13 +185,16 @@ DERIVATIVE bindkin {
 : Note: automatic initialization of all reference args to 0 except first
 
 NET_RECEIVE(weight (umho),  r0, t0 (ms)) {
-	if (flag == 1) { : at end of Cdur pulse so turn off
+	if (flag == 1) { 
+	: at end of Cdur pulse so turn off
 		r0 = weight*(Rinf + (r0 - Rinf)*exp(-(t - t0)/Rtau))
 		t0 = t
 		synon = synon - weight
 		state_discontinuity(Ron, Ron - r0)
 		state_discontinuity(Roff, Roff + r0)
-        }else{ : at beginning of Cdur pulse so turn on
+        }
+	else{ 
+	: at beginning of Cdur pulse so turn on
 		r0 = weight*r0*exp(-Beta*(t - t0))
 		t0 = t
 		synon = synon + weight

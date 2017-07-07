@@ -31,7 +31,7 @@ INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
 NEURON {
 	SUFFIX it2
 	USEION ca READ cai, cao WRITE ica
-	RANGE gcabar, m_inf, tau_m, h_inf, tau_h, shift, qm, qh
+	RANGE gcabar, m_inf, tau_m, h_inf, tau_h, shift, qm, qh, taubase
 }
 
 UNITS {
@@ -50,6 +50,7 @@ PARAMETER {
 :	eca	= 120	(mV)
 	gcabar	= .003	(mho/cm2)
 	shift	= 0 	(mV)
+	taubase	= 85 (mV)
 	cai	= 2.4e-4 (mM)		: adjusted for eca=120 mV
 	cao	= 2	(mM)
 	qm	= 2.5
@@ -108,6 +109,7 @@ PROCEDURE evaluate_fct(v(mV)) {
 	h_inf = 1.0 / ( 1 + exp((v+shift+78)/5.0) )
 
 	tau_m = ( 3 + 1.0 / ( exp((v+shift+25)/10) + exp(-(v+shift+100)/15) ) ) / phi_m
-	tau_h = ( 85 + 1.0 / ( exp((v+shift+46)/4) + exp(-(v+shift+405)/50) ) ) / phi_h
+:	tau_h = ( 85 + 1.0 / ( exp((v+shift+46)/4) + exp(-(v+shift+405)/50) ) ) / phi_h
+	tau_h = ( taubase + 1.0 / ( exp((v+shift+46)/4) + exp(-(v+shift+405)/50) ) ) / phi_h
 }
 UNITSON

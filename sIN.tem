@@ -19,9 +19,11 @@ print " "
 
 
 begintemplate sIN		// create a new template object
-public soma
+public soma, ampapost, PYlist, TClist
 
 create soma // soma[1]
+
+objectvar ampapost, PYlist, TClist
 
 proc init() { local v_potassium, v_sodium
 
@@ -53,6 +55,10 @@ proc init() { local v_potassium, v_sodium
 //	gkbar_hh2 = 0.004
 	gkbar_hh2 = 0.01	// spike duration of interneurons
 
+	TClist = new List()
+	PYlist = new List()
+
+	ampapost = new AMPA_S(0.5)
   }
 
   print " "

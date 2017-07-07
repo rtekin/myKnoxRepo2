@@ -25,9 +25,12 @@ print " "
 
 
 begintemplate sPY		// create a new template object
-public soma
+public soma, ampapostPY, ampapostTC, gabaapost, gababpost, PYlist, TClist, INgabaalist, INgabablist
 
 create soma // soma[1]
+
+objectvar ampapostPY, ampapostTC, gabaapost, gababpost, PYlist, TClist, INgabaalist, INgabablist
+
 
 proc init() { local v_potassium, v_sodium
 
@@ -56,35 +59,32 @@ proc init() { local v_potassium, v_sodium
 	gnabar_hh2 = 0.05	// McCormick=15 muS, thal was 0.09
 	gkbar_hh2 = 0.005	// spike duration of pyr cells
 
-
 	insert im		// M current 
-	taumax_im = 1000
+	taumax_im = 1000 //350 //1000
 	gkbar_im = 7e-5		// Diego's IM (copyrighted)
+
+	PYlist = new List()
+	TClist = new List()
+	INgabaalist = new List()
+	INgabablist = new List()
+
+	ampapostPY = new AMPA_S(0.5)
+	ampapostTC = new AMPA_S(0.5)
+	gabaapost = new GABAa_S(0.5)
+	gababpost = new List()
+	//gababpost = new GABAb_S(0.5)
+
 
 //	insert iahp
 //	alpha_iahp = 1.25e9
 //	beta_iahp = 0.001
 //	gkbar_iahp = 1.7e-5	// McCormick=5 nS
 
-/*--------------------------------------------------------------
-	SIMPLIFIED MODEL OF BURSTING PYRAMIDAL CELL
-  Destexhe, A. Contreras, D. and Steriade, M.  LTS cells in cerebral cortex
-  and their role in generating spike-and-wave oscillations.   
-  Neurocomputing 38: 555-563 (2001).
-		- T-type calcium current
---------------------------------------------------------------*/
 //	insert cad		// calcium decay
 //	depth_cad = 1		// McCormick= 0.1 um
 //	taur_cad = 5		// McCormick=1 ms !!!
 //	cainf_cad = 2.4e-4	// McCormick=0
 //	kt_cad = 0		// no pump
-
-//	insert it		// IT current 
-//	cai = 2.4e-4 
-//	cao = 2 
-//	eca = 120 
-//	gcabar_it = 0.001	// specific to LTS pyr cell
-
   }
 
   print " "
