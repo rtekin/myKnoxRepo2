@@ -209,10 +209,10 @@ netParams.stimTargetParams['Input_3->TC'] = {'source': 'Input_3', 'sec':'soma', 
 ####################### intra cortikal projections ############################
 p=0*1.0; pCrx=p; pThl=p; pThlCrx=p # small-world-ness param
 #K=0.1 # connectivity param
-#intraCrxProb=0.1
-PY_PY_AMPA_Prob=0.1;PY_IN_AMPA_Prob=0.1;
-PY_PY_NMDA_Prob=0.1;PY_IN_NMDA_Prob=0.1;
-IN_PY_GABAA_Prob=0.1;IN_PY_GABAB_Prob=0.1;
+intraCrxProb=0.1
+PY_PY_AMPA_Prob=intraCrxProb;PY_IN_AMPA_Prob=intraCrxProb;
+PY_PY_NMDA_Prob=intraCrxProb;PY_IN_NMDA_Prob=intraCrxProb;
+IN_PY_GABAA_Prob=intraCrxProb;IN_PY_GABAB_Prob=intraCrxProb;
 
 gabaapercent=1*0.5*2
 
@@ -303,15 +303,15 @@ netParams.connParams['IN->PY_GABAB'] = {
 
 ###################### intra thalamic projections #############################
 intraThlProb=0.1
-TC_RE_AMPA_Prob=0.1;RE_TC_GABAA_Prob=0.1;
-RE_TC_GABAB_Prob=0.1;RE_RE_GABAA_Prob=0.1;
+TC_RE_AMPA_Prob=intraThlProb;RE_TC_GABAA_Prob=intraThlProb;
+RE_TC_GABAB_Prob=intraThlProb;RE_RE_GABAA_Prob=intraThlProb;
 
 netParams.connParams['TC->RE'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'RE'},
     'weight': 0.2/(N_RE*TC_RE_AMPA_Prob+1),         # (Destexhe, 1998)  
     #'weight': 0.2,         # (Destexhe, 1998)  
-    'delay': 0*netParams.axondelay, 
+    'delay': netParams.axondelay, 
     'sec': 'soma',
     'loc': 0.5,
     'synMech': 'AMPA_S',
@@ -357,9 +357,9 @@ netParams.connParams['RE->RE'] = {
     'connList': smallWorldConn(N_RE,N_RE,pThl,RE_RE_GABAA_Prob)}   
 
 ################# thalamo-cortical projections ################################
-#ThlCrxProb=0.2
-PY_TC_AMPA_Prob=0.2;PY_RE_AMPA_Prob=0.2;
-TC_PY_AMPA_Prob=0.2;TC_IN_AMPA_Prob=0.2;
+ThlCrxProb=0.2
+PY_TC_AMPA_Prob=ThlCrxProb;PY_RE_AMPA_Prob=ThlCrxProb;
+TC_PY_AMPA_Prob=ThlCrxProb;TC_IN_AMPA_Prob=ThlCrxProb;
 
 netParams.connParams['PY->TC'] = {
     'preConds': {'popLabel': 'PY'}, 
@@ -507,7 +507,7 @@ simConfig.Dt = 0.1
 simConfig.steps_per_ms = 1/simConfig.Dt
 simConfig.npoints = 30000
 
-simConfig.duration = 13*1000 # simConfig.trans + simConfig.npoints * simConfig.Dt # Duration of the simulation, in ms
+simConfig.duration = 3*1000 # simConfig.trans + simConfig.npoints * simConfig.Dt # Duration of the simulation, in ms
 simConfig.dt = 0.1 # Internal integration timestep to use
 simConfig.hParams['celsius'] = 36
 simConfig.hParams['v_init'] = -70
