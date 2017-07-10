@@ -1451,7 +1451,7 @@ print " "
 proc printREinfo(){
 	index=$1
 	print " "
-	print "----------------- RE Parameter values (index=,index,") --------------------"
+	print "----------------- RE Parameter values (index=",index,") --------------------"
 	print " "
 
 	print "diam=",RE[index].soma.diam,"\t L=",RE[index].soma.L," \t Cm=",RE[index].soma.cm," \t Ra=",RE[index].soma.Ra
