@@ -217,7 +217,7 @@ proc init () {
   //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.0375,0.03,1.2,0.01,1.2,0.4)		// 25% IN->PY weight (0.0375)
   //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.015,0.03,1.2,0.01,1.2,0.4)		// 10% IN->PY weight (0.015)
   //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.0,0.03,1.2,0.01,1.2,0.4)		// 0% IN->PY A weight
-  assign_synapses(0*0.2,0*0.02,0*0.04,0.2,0.6,0.2,gabaapercent*0.15,gababpercent*0.03,0*1.2,0*0.01,0*1.2,0*0.4)		// 0% IN->PY A weight
+  assign_synapses(0.2,0*0.02,0*0.04,0.2,0*0.6,0.2,0*gabaapercent*0.15,0*gababpercent*0.03,0*1.2,0*0.01,1.2,0.4)		// 0% IN->PY A weight
   
   
   //assign_synapses(0.12,0.02,0.04,0.2,0.6,0.2,0,0.03,1.2,0.01,1.2,0.4)		// 0% IN->PY A weight, better RERE for new synapses
@@ -392,7 +392,7 @@ func ncon() { local nc		// function to get the number of connections
 
 
 
-/*
+
 
 //----------------------------------------------------------------------------
 //  Glutamate AMPA receptors in synapses from TC to RE
@@ -417,8 +417,8 @@ print " "
 print "<< ",RE[0].TClist.count()," AMPA-MEDIATED SYNAPTIC CONTACTS FROM TC TO RE >>"
 print " "
 
-*/
 
+/*
 //----------------------------------------------------------------------------
 //  Glutamate AMPA receptors in synapses from TC to RE
 //----------------------------------------------------------------------------
@@ -439,6 +439,9 @@ for i=0,nthalamiccells-1 {
 	}
    }
 }
+*/
+
+
 
 //----------------------------------------------------------------------------
 //  GABAa receptors in intra-RE synapses
@@ -455,14 +458,45 @@ for i=0,nthalamiccells-1 {
 
 	// presynaptic is RE[i], postsynaptic is RE[j] 
 	RE[i].soma RE[jbound].REgabaalist.append(new NetCon(&v(0.5), RE[jbound].gabaapost, 0, axondelay, 1))
-	//printf("[%d,%d], ",i,jbound)
+	printf("[%d,%d], ",i,jbound)
    }
 }
-	
+
+
 print " "
 print "<< ",RE[0].REgabaalist.count()," GABAa-MEDIATED SYNAPTIC CONTACTS FROM RE TO RE >>"
 print " "
 
+
+
+/*
+//----------------------------------------------------------------------------
+//  GABAa receptors in intra-RE synapses
+//----------------------------------------------------------------------------
+
+diamRERE = narrowdiam		// diameter of connectivity for RE->RE
+nRERE = ncon(diamRERE)	// nb of RE cells receiving synapses from one RE cell
+
+for i=0,nthalamiccells-1 {
+   for j=i-diamRERE*0,i+diamRERE*0 {
+	jbound = j
+	//if (jbound < 0) jbound = abs(j) - 1
+	//if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
+
+	if (jbound >= 0 && jbound <= (nthalamiccells-1)){
+	// presynaptic is RE[i], postsynaptic is RE[j]
+		RE[i].soma RE[jbound].REgabaalist.append(new NetCon(&v(0.5), RE[jbound].gabaapost, 0, axondelay, 1))
+		printf("[%d,%d], ",i,jbound)
+	}// else{
+	//	RE[i].soma RE[jbound].REgabaalist.append(new NetCon(&v(0.5), RE[jbound].gabaapost, 0, axondelay, 1*0))
+	//}
+   }
+}
+
+print " "
+print "<< ",RE[0].REgabaalist.count()," GABAa-MEDIATED SYNAPTIC CONTACTS FROM RE TO RE >>"
+print " "
+*/
 
 //----------------------------------------------------------------------------
 //  GABAa receptors in synapses from RE to TC cells
@@ -488,6 +522,35 @@ print "<< ",TC[jbound].REgabaalist.count()," GABAa-MEDIATED SYNAPTIC CONTACTS FR
 print " "
 
 
+/*
+//----------------------------------------------------------------------------
+//  GABAb receptors in synapses from RE to TC cells
+//----------------------------------------------------------------------------
+
+// use same diameters and connectivity as GABAa receptors (colocalized)
+objectvar gababsyn
+
+for i=0,nthalamiccells-1 {
+   for j=i-diamRETC*0,i+diamRETC*0 {
+	jbound = j
+	//if (jbound < 0) jbound = abs(j) - 1
+	//if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
+
+	if (jbound >= 0 && jbound <= (nthalamiccells-1)){
+	// presynaptic is RE[i], postsynaptic is TC[j]
+	gababsyn = new GABAb_S()
+ 	TC[jbound].soma gababsyn.loc(0.5)
+	TC[jbound].gababpost.append(gababsyn)
+	RE[i].soma TC[jbound].REgabablist.append(new NetCon(&v(0.5), gababsyn, 0, axondelay, 1))
+	printf("[%d,%d], ",i,jbound)
+	}
+   }
+}
+	
+print " "
+print "<< ",TC[0].REgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE TO TC >>"
+print " "
+*/
 
 //----------------------------------------------------------------------------
 //  GABAb receptors in synapses from RE to TC cells
@@ -516,6 +579,35 @@ print "<< ",TC[0].REgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE
 print " "
 
 
+/*
+//----------------------------------------------------------------------------
+//  Glutamate AMPA receptors in synapses from PY to PY
+//----------------------------------------------------------------------------
+
+diamPYPY = narrowdiam		// diameter of connectivity for PY->PY
+nPYPY = ncon(diamTCRE)	// nb of PY cells receiving synapses from one PY cell
+
+for i=0,ncorticalcells-1 {
+   for j=i-diamPYPY*0,i+diamPYPY*0 {
+	//synfile.printf("<< AMPA receptor from PY cell %d to PY cell %d >>\n",i,j)
+	jbound = j
+	//if (jbound < 0) jbound = abs(j) - 1
+	//if (jbound > ncorticalcells-1) jbound = 2 * ncorticalcells - jbound - 1
+	
+	// presynaptic is PY[i], postsynaptic is PY[j] 
+	//if (i != jbound) PY[i].soma PY[jbound].PYlist.append(new NetCon(&v(0.5), PY[jbound].ampapostPY, 0, axondelay, 1))
+	if (jbound >= 0 && jbound <= (nthalamiccells-1)){
+		PY[i].soma PY[jbound].PYlist.append(new NetCon(&v(0.5), PY[jbound].ampapostPY, 0, axondelay, 1))
+		printf("[%d,%d], ",i,jbound)
+		}
+   }
+}
+
+print " "
+print "<< ",PY[0].PYlist.count()," AMPA-MEDIATED SYNAPTIC CONTACTS FROM PY TO PY >>"
+print " "
+*/
+
 //----------------------------------------------------------------------------
 //  Glutamate AMPA receptors in synapses from PY to PY
 //----------------------------------------------------------------------------
@@ -540,8 +632,6 @@ for i=0,ncorticalcells-1 {
 print " "
 print "<< ",PY[0].PYlist.count()," AMPA-MEDIATED SYNAPTIC CONTACTS FROM PY TO PY >>"
 print " "
-
-	
 
 
 
@@ -1098,7 +1188,7 @@ addfieldgraph("field",-100,100)
 // Make raster plots
 //-----------------------------------------------------------------------------
 /*
-objref g, spikeglyph, boxglyph
+objref grst, spikeglyph, boxglyph
 // Glyph to make the line of a spike
 spikeglyph = new Glyph()
 spikeglyph = spikeglyph.path()
@@ -1116,19 +1206,19 @@ boxglyph = boxglyph.l(0,    ncorticalcells)
 boxglyph = boxglyph.close()
 boxglyph = boxglyph.fill(8)
 
-g = Graph[5]
-g.size(0,1000,0,80)
+grst = new Graph(0) // Graph[5]
+grst.size(0,1000,0,80)
 
 proc plotraster() {
-    g.erase_all()
-    g.glyph(boxglyph, 0, ncorticalcells+1)
+    grst.erase_all()
+    grst.glyph(boxglyph, 0, ncorticalcells+1)
     
 	for i=0, PYidvec.size()-1 {
-		g.glyph(spikeglyph, PYtimevec.x(i), PYidvec.x(i))
+		grst.glyph(spikeglyph, PYtimevec.x(i), PYidvec.x(i))
 	}
 	
 	for i=0, INidvec.size()-1 {
-		g.glyph(spikeglyph, INtimevec.x(i), INidvec.x(i)-ncorticalcells+ncorticalcells)
+		grst.glyph(spikeglyph, INtimevec.x(i), INidvec.x(i)-ncorticalcells+ncorticalcells)
 	}
 }
 
@@ -1361,7 +1451,7 @@ print " "
 proc printREinfo(){
 	index=$1
 	print " "
-	print "----------------- RE Parameter values (index=) --------------------",index
+	print "----------------- RE Parameter values (index=,index,") --------------------"
 	print " "
 
 	print "diam=",RE[index].soma.diam,"\t L=",RE[index].soma.L," \t Cm=",RE[index].soma.cm," \t Ra=",RE[index].soma.Ra
@@ -1379,7 +1469,9 @@ proc printREinfo(){
 
 proc myrun() {
 	printREinfo(0)
-    run()
+    
+	run()
+	
     //plotraster()
 	rasterplot()
 }

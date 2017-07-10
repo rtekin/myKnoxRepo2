@@ -37,7 +37,32 @@ def smallWorldConn(NPre, NPost, p, K):
     for i in range(NPre):
         #for j in np.arange(-1*int(np.ceil(NPost*K/2)),int(np.ceil(NPost*K/2))+1): # ring-like neighborhood
             #connMat.append([i,(NPost + i + j) % NPost]) # ring like
-        for j in np.arange(i-0*1*int(np.ceil(NPost*K/2)),i+0*int(np.ceil(NPost*K/2))+1): # line-like neighborhood
+        for j in np.arange(i-int(np.ceil(NPost*K/2)),i+int(np.ceil(NPost*K/2))+1): # line-like neighborhood
+            jbound = j
+            if jbound < 0: jbound = abs(j) - 1
+            if jbound > NPost-1: jbound = 2 * NPost - jbound - 1 
+            #if (jbound >= 0 and jbound <= NPost-1):
+            connMat.append([i,jbound])
+            
+    if p:
+        connects = [x for x in range(len(connMat))]
+        rnd_ind = rnd.sample(connects, int(len(connMat)*p))
+        for i in rnd_ind:
+            connMat[i][1]=rnd.randint(0,NPost-1)
+    return connMat
+
+def smallWorldConnL(NPre, NPost, p, K):
+    ''' k is smallwordness parameters
+    K is ratio of connections from each pre cell to post cells
+    if p=0 regular network
+    if p between 0 and 1 small-world network and
+    if p=1 random network 
+    '''
+    connMat=[]
+    for i in range(NPre):
+        #for j in np.arange(-1*int(np.ceil(NPost*K/2)),int(np.ceil(NPost*K/2))+1): # ring-like neighborhood
+            #connMat.append([i,(NPost + i + j) % NPost]) # ring like
+        for j in np.arange(i-0*int(np.ceil(NPost*K/2)),i+0*int(np.ceil(NPost*K/2))+1): # line-like neighborhood
             jbound = j
             #if jbound < 0: jbound = abs(j) - 1
             #if jbound > NPost-1: jbound = 2 * NPost - jbound - 1 
@@ -50,6 +75,20 @@ def smallWorldConn(NPre, NPost, p, K):
         for i in rnd_ind:
             connMat[i][1]=rnd.randint(0,NPost-1)
     return connMat
+
+"""
+def createList(NPre, NPost, K, val):
+
+    lst=[]
+    for i in range(NPre):
+        for j in np.arange(i-int(np.ceil(NPost*K/2)),i+int(np.ceil(NPost*K/2))+1): # line-like neighborhood
+            jbound = j
+            if jbound < 0: jbound = abs(j) - 1
+            if jbound > NPost-1: jbound = 2 * NPost - jbound - 1 
+            #if (jbound >= 0 and jbound <= NPost-1):
+            lst.append(val)
+    return lst
+"""
 
 ###############################################################################
 #
@@ -156,15 +195,15 @@ netParams.synMechParams['AMPA_S'] = {'mod': 'AMPA_S', 'Cmax': 0.5, 'Cdur': 0.3, 
 # NMDA
 #netParams.synMechParams['NMDA'] = {'mod': 'Exp2Syn', 'tau1': 0.15, 'tau2': 15, 'e': 0}  # NMDA
 #netParams.synMechParams['NMDA'] = {'mod': 'NMDA_S', 'Cdur': 1.0, 'Alpha': 0.11, 'Beta': 0.0066, 'Erev': 0, 'mg': 2} #} # Destexhe, 1998
-netParams.synMechParams['NMDA'] = {'mod': 'NMDA_S', 'Cdur': 0.3, 'Alpha': 0.11, 'Beta': 0.0066, 'Erev': 0, 'mg': 2} #} # Destexhe, 1998
+netParams.synMechParams['NMDA_S'] = {'mod': 'NMDA_S', 'Cdur': 0.3, 'Alpha': 0.11, 'Beta': 0.0066, 'Erev': 0, 'mg': 2} #} # Destexhe, 1998
 
 # GABAa_S
 #netParams.synMechParams['GABAA'] = {'mod': 'Exp2Syn', 'tau1': 0.07, 'tau2': 9.1, 'e': -80}  # GABAA
-netParams.synMechParams['GABAA'] = {'mod': 'GABAa_S', 'Cmax': 0.5, 'Cdur': 0.3, 'Alpha': 20, 'Beta': 0.162, 'Erev': -85} # }  # GABAA
+netParams.synMechParams['GABAA_S'] = {'mod': 'GABAa_S', 'Cmax': 0.5, 'Cdur': 0.3, 'Alpha': 20, 'Beta': 0.162, 'Erev': -85} # }  # GABAA
 
 # GABAb_S
 #netParams.synMechParams['GABAB'] = {'mod': 'Exp2Syn', 'tau1': 0.07, 'tau2': 9.1, 'e': -80}  # GABAB
-netParams.synMechParams['GABAB'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
+netParams.synMechParams['GABAB_S'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
 #netParams.synMechParams['GABAB'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.52, 'K2': 0.0045, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
 
 # gap
@@ -231,8 +270,9 @@ netParams.connParams['PY->PY_GAP'] = {
 netParams.connParams['PY->PY_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.6/(N_PY*PY_PY_AMPA_Prob+1),            # (Destexhe, 1998)
+    'weight': 0*0.6/(N_PY*PY_PY_AMPA_Prob+1),            # (Destexhe, 1998)
     #'weight': 0.6,            # (Destexhe, 1998)
+    'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
@@ -245,13 +285,14 @@ netParams.connParams['PY->IN_AMPA'] = {
     'postConds': {'popLabel': 'IN'},
     'weight': 0.2/(N_IN*PY_IN_AMPA_Prob+1),            # (Destexhe, 1998)       
     #'weight': 0.2,            # (Destexhe, 1998)       
+    'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'AMPA_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': PY_IN_AMPA_Prob}
     'connList': smallWorldConn(N_PY,N_IN,pCrx,PY_IN_AMPA_Prob)}   
-
+"""
 netParams.connParams['PY->PY_NMDA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'PY'},
@@ -259,7 +300,7 @@ netParams.connParams['PY->PY_NMDA'] = {
     #'weight': 0*0.25*0.6,            # (Destexhe, 1998)       
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'NMDA',
+    'synMech': 'NMDA_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*PY_PY_NMDA_Prob}
     'connList': smallWorldConn(N_PY,N_PY,pCrx,PY_PY_NMDA_Prob)}   
@@ -271,19 +312,20 @@ netParams.connParams['PY->IN_NMDA'] = {
     #'weight': 0*0.25*0.2,            # (Destexhe, 1998)        
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'NMDA',
+    'synMech': 'NMDA_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': 0*PY_IN_NMDA_Prob}
     'connList': smallWorldConn(N_PY,N_IN,pCrx,PY_IN_NMDA_Prob)}   
-
+"""
 netParams.connParams['IN->PY_GABAA'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': gabaapercent*0.15/(N_PY*IN_PY_GABAA_Prob+1),         # (Destexhe, 1998)
+    'weight': 0*gabaapercent*0.15/(N_PY*IN_PY_GABAA_Prob+1),         # (Destexhe, 1998)
     #'weight': gabaapercent*0.15,         # (Destexhe, 1998)
+    'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAA',
+    'synMech': 'GABAA_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': IN_PY_GABAA_Prob}
     'connList': smallWorldConn(N_IN,N_PY,pCrx,IN_PY_GABAA_Prob)}   
@@ -291,11 +333,12 @@ netParams.connParams['IN->PY_GABAA'] = {
 netParams.connParams['IN->PY_GABAB'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
+    'weight': 0*0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.03,         # (Destexhe, 1998)
+    'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB',
+    'synMech': 'GABAB_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': IN_PY_GABAB_Prob}
     'connList': smallWorldConn(N_IN,N_PY,pCrx,IN_PY_GABAB_Prob)}   
@@ -311,14 +354,14 @@ netParams.connParams['TC->RE'] = {
     'postConds': {'popLabel': 'RE'},
     'weight': 0.2/(N_RE*TC_RE_AMPA_Prob+1),         # (Destexhe, 1998)  
     #'weight': 0.2,         # (Destexhe, 1998)  
-    'delay': netParams.axondelay, 
     'sec': 'soma',
+    'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'AMPA_S',
     'threshold': 0,
+    'synMech': 'AMPA_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': TC_RE_AMPA_Prob}
-    'connList': smallWorldConn(N_TC,N_RE,pThl,TC_RE_AMPA_Prob)}   
+    'connList': smallWorldConn(N_TC,N_RE,pThl,TC_RE_AMPA_Prob)}
 
 netParams.connParams['RE->TC_GABAA'] = {
     'preConds': {'popLabel': 'RE'}, 
@@ -327,7 +370,7 @@ netParams.connParams['RE->TC_GABAA'] = {
     #'weight': 0.02,         # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAA',
+    'synMech': 'GABAA_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': RE_TC_GABAA_Prob}
     'connList': smallWorldConn(N_RE,N_TC,pThl,RE_TC_GABAA_Prob)}   
@@ -337,21 +380,25 @@ netParams.connParams['RE->TC_GABAB'] = {
     'postConds': {'popLabel': 'TC'},
     'weight': 0*0.04/(N_TC*RE_TC_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.04,         # (Destexhe, 1998)
+    'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB',
+    'synMech': 'GABAB_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': RE_TC_GABAB_Prob}
-    'connList': smallWorldConn(N_RE,N_TC,pThl,RE_TC_GABAB_Prob)}   
+    'connList': smallWorldConn(N_RE,N_TC,pThl,RE_TC_GABAB_Prob)}
 
 netParams.connParams['RE->RE'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0*0.2/(N_RE*RE_RE_GABAA_Prob+1),            # (Destexhe, 1998)
+    'weight': 0.2/(N_RE*RE_RE_GABAA_Prob+1),            # (Destexhe, 1998)
     #'weight': 0.2,            # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAA',
+    'sec': 'soma',
+    #'threshold': 0,
+    'synMech': 'GABAA_S',
+    #'synsPerConn': 1,
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': RE_RE_GABAA_Prob}
     'connList': smallWorldConn(N_RE,N_RE,pThl,RE_RE_GABAA_Prob)}   
@@ -388,7 +435,7 @@ netParams.connParams['PY->RE'] = {
 netParams.connParams['TC->PY'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0*1.2/(N_PY*TC_PY_AMPA_Prob+1),        # (Destexhe, 1998)   
+    'weight': 1.2/(N_PY*TC_PY_AMPA_Prob+1),        # (Destexhe, 1998)   
     #'weight': 1.2,        # (Destexhe, 1998)   
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -400,7 +447,7 @@ netParams.connParams['TC->PY'] = {
 netParams.connParams['TC->IN'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0*0.4/(N_IN*TC_IN_AMPA_Prob+1),        # (Destexhe, 1998)  
+    'weight': 0.4/(N_IN*TC_IN_AMPA_Prob+1),        # (Destexhe, 1998)  
     #'weight': 0.4,        # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -512,7 +559,7 @@ simConfig.dt = 0.1 # Internal integration timestep to use
 simConfig.hParams['celsius'] = 36
 simConfig.hParams['v_init'] = -70
 simConfig.seeds = {'conn': 1, 'stim': 1, 'loc': 1} # Seeds for randomizers (connectivity, input stimulation and cell locations)
-simConfig.verbose = False  # show detailed messages 
+simConfig.verbose = True  # show detailed messages 
 
 # Recording 
 simConfig.recordCells = []  # which cells to record from
@@ -536,9 +583,9 @@ simConfig.saveFileStep = 1000 # step size in ms to save data to disk
 simConfig.analysis['plotRaster'] = {'include': ['RE', 'TC', 'IN', 'PY'], 'orderInverse': False} #True # Whether or not to plot a raster
 
 #simConfig.analysis['plotRaster'] = True  # Plot raster
-simConfig.analysis['plotTraces'] = {'include': [('PY',50),('IN',50),('TC',[50]),('RE',50)]} # plot recorded traces for this list of cells
+simConfig.analysis['plotTraces'] = {'include': [('PY',50),('IN',50),('TC',[50]),('RE',[40,50,60])]} # plot recorded traces for this list of cells
 
-simConfig.analysis['plotRatePSD'] = {'include': ['PY', 'IN', 'TC', 'RE'], 'Fs': 50, 'smooth': 10} # plot recorded traces for this list of cells
+#simConfig.analysis['plotRatePSD'] = {'include': ['PY', 'IN', 'TC', 'RE'], 'Fs': 50, 'smooth': 10} # plot recorded traces for this list of cells
 
 #simConfig.addAnalysis('plot2Dnet', {'include': ['PY', 'IN', 'TC', 'RE'],  'showConns': True, 'saveFig': './images/plot2Dnet.png', 'showFig': False})
 #simConfig.addAnalysis('plotShape', {'showSyns': True})
