@@ -109,7 +109,7 @@ NEURON {
 	:GLOBAL Cmax, Cdur
 	:GLOBAL K1, K2, K3, K4, KD, Erev
 	RANGE Cmax, Cdur
-	RANGE K1, K2, K3, K4, KD, Erev	
+	RANGE K1, K2, K3, K4, n, KD, Erev	
 }
 UNITS {
 	(nA) = (nanoamp)

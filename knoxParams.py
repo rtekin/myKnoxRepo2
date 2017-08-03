@@ -35,8 +35,11 @@ def smallWorldConn(NPre, NPost, p, K):
     '''
     connMat=[]
     for i in range(NPre):
-        #for j in np.arange(-1*int(np.ceil(NPost*K/2)),int(np.ceil(NPost*K/2))+1): # ring-like neighborhood
-            #connMat.append([i,(NPost + i + j) % NPost]) # ring like
+        """
+        for j in np.arange(-1*int(np.ceil(NPost*K/2)),int(np.ceil(NPost*K/2))+1): # ring-like neighborhood
+            jbound = (NPost + i + j) % NPost
+            connMat.append([i,jbound]) # ring like
+        """
         for j in np.arange(i-int(np.ceil(NPost*K/2)),i+int(np.ceil(NPost*K/2))+1): # line-like neighborhood
             jbound = j
             if jbound < 0: jbound = abs(j) - 1
@@ -95,6 +98,23 @@ def createList(NPre, NPost, K, val):
 # MPI HH TUTORIAL PARAMS
 #
 ###############################################################################
+
+p=0*1.0; pCrx=p; pThl=p; pThlCrx=p # small-world-ness param
+#K=0.1 # connectivity param
+intraCrxProb=0.1
+PY_PY_AMPA_Prob=intraCrxProb;PY_IN_AMPA_Prob=intraCrxProb;
+PY_PY_NMDA_Prob=intraCrxProb;PY_IN_NMDA_Prob=intraCrxProb;
+IN_PY_GABAA_Prob=intraCrxProb;IN_PY_GABAB_Prob=intraCrxProb;
+
+gabaapercent=1*0.5*2
+
+intraThlProb=0.1
+TC_RE_AMPA_Prob=intraThlProb;RE_TC_GABAA_Prob=intraThlProb;
+RE_TC_GABAB_Prob=intraThlProb;RE_RE_GABAA_Prob=intraThlProb;
+
+ThlCrxProb=0.2
+PY_TC_AMPA_Prob=ThlCrxProb;PY_RE_AMPA_Prob=ThlCrxProb;
+TC_PY_AMPA_Prob=ThlCrxProb;TC_IN_AMPA_Prob=ThlCrxProb;
 
 ###############################################################################
 # NETWORK PARAMETERS
@@ -203,8 +223,9 @@ netParams.synMechParams['GABAA_S'] = {'mod': 'GABAa_S', 'Cmax': 0.5, 'Cdur': 0.3
 
 # GABAb_S
 #netParams.synMechParams['GABAB'] = {'mod': 'Exp2Syn', 'tau1': 0.07, 'tau2': 9.1, 'e': -80}  # GABAB
-netParams.synMechParams['GABAB_S'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
-#netParams.synMechParams['GABAB'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.52, 'K2': 0.0045, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
+netParams.synMechParams['GABAB_S1'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95, 'gmax': 0.03/(N_PY*IN_PY_GABAB_Prob+1)} # }  # GABAB
+netParams.synMechParams['GABAB_S2'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95, 'gmax': 0.04/(N_TC*RE_TC_GABAB_Prob+1)} # }  # GABAB
+#netParams.synMechParams['GABAB_S'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.52, 'K2': 0.0045, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
 
 # gap
 netParams.synMechParams['GAP'] = {'mod': 'GAP_S', 'r': 1.25e6}
@@ -246,14 +267,6 @@ netParams.stimTargetParams['Input_3->TC'] = {'source': 'Input_3', 'sec':'soma', 
 ###############################################################################
 
 ####################### intra cortikal projections ############################
-p=0*1.0; pCrx=p; pThl=p; pThlCrx=p # small-world-ness param
-#K=0.1 # connectivity param
-intraCrxProb=0.1
-PY_PY_AMPA_Prob=intraCrxProb;PY_IN_AMPA_Prob=intraCrxProb;
-PY_PY_NMDA_Prob=intraCrxProb;PY_IN_NMDA_Prob=intraCrxProb;
-IN_PY_GABAA_Prob=intraCrxProb;IN_PY_GABAB_Prob=intraCrxProb;
-
-gabaapercent=1*0.5*2
 
 """
 netParams.connParams['PY->PY_GAP'] = {
@@ -270,7 +283,7 @@ netParams.connParams['PY->PY_GAP'] = {
 netParams.connParams['PY->PY_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0*0.6/(N_PY*PY_PY_AMPA_Prob+1),            # (Destexhe, 1998)
+    'weight': 0.6/(N_PY*PY_PY_AMPA_Prob+1),            # (Destexhe, 1998)
     #'weight': 0.6,            # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
@@ -320,7 +333,7 @@ netParams.connParams['PY->IN_NMDA'] = {
 netParams.connParams['IN->PY_GABAA'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0*gabaapercent*0.15/(N_PY*IN_PY_GABAA_Prob+1),         # (Destexhe, 1998)
+    'weight': gabaapercent*0.15/(N_PY*IN_PY_GABAA_Prob+1),         # (Destexhe, 1998)
     #'weight': gabaapercent*0.15,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
@@ -333,21 +346,19 @@ netParams.connParams['IN->PY_GABAA'] = {
 netParams.connParams['IN->PY_GABAB'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0*0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
+    'weight': 0*1, # 0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.03,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB_S',
+    'synMech': 'GABAB_S1',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': IN_PY_GABAB_Prob}
     'connList': smallWorldConn(N_IN,N_PY,pCrx,IN_PY_GABAB_Prob)}   
 
 
 ###################### intra thalamic projections #############################
-intraThlProb=0.1
-TC_RE_AMPA_Prob=intraThlProb;RE_TC_GABAA_Prob=intraThlProb;
-RE_TC_GABAB_Prob=intraThlProb;RE_RE_GABAA_Prob=intraThlProb;
+
 
 netParams.connParams['TC->RE'] = {
     'preConds': {'popLabel': 'TC'}, 
@@ -366,8 +377,9 @@ netParams.connParams['TC->RE'] = {
 netParams.connParams['RE->TC_GABAA'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0*0.02/(N_TC*RE_TC_GABAA_Prob+1),         # (Destexhe, 1998)
+    'weight': 0.02/(N_TC*RE_TC_GABAA_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.02,         # (Destexhe, 1998)
+    'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
     'synMech': 'GABAA_S',
@@ -378,15 +390,16 @@ netParams.connParams['RE->TC_GABAA'] = {
 netParams.connParams['RE->TC_GABAB'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0*0.04/(N_TC*RE_TC_GABAB_Prob+1),         # (Destexhe, 1998)
+    'weight': 0*1, #0.04/(N_TC*RE_TC_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.04,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB_S',
+    'synMech': 'GABAB_S2',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': RE_TC_GABAB_Prob}
     'connList': smallWorldConn(N_RE,N_TC,pThl,RE_TC_GABAB_Prob)}
+#netParams.connParams['RE->TC_GABAB']['gmax']=0.04/(N_TC*RE_TC_GABAB_Prob+1)
 
 netParams.connParams['RE->RE'] = {
     'preConds': {'popLabel': 'RE'}, 
@@ -404,9 +417,7 @@ netParams.connParams['RE->RE'] = {
     'connList': smallWorldConn(N_RE,N_RE,pThl,RE_RE_GABAA_Prob)}   
 
 ################# thalamo-cortical projections ################################
-ThlCrxProb=0.2
-PY_TC_AMPA_Prob=ThlCrxProb;PY_RE_AMPA_Prob=ThlCrxProb;
-TC_PY_AMPA_Prob=ThlCrxProb;TC_IN_AMPA_Prob=ThlCrxProb;
+
 
 netParams.connParams['PY->TC'] = {
     'preConds': {'popLabel': 'PY'}, 
@@ -563,7 +574,14 @@ simConfig.verbose = True  # show detailed messages
 
 # Recording 
 simConfig.recordCells = []  # which cells to record from
-simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'}}
+simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'},
+                          #'i_AMPA': {'sec':'soma', 'loc':0.5, 'synMech': 'AMPA_S', 'var': 'i', 'conds': {'pop': ['RE', 'TC', 'IN', 'PY']}},
+                          #'g_AMPA': {'sec':'soma', 'loc':0.5, 'synMech': 'AMPA_S', 'var': 'g', 'conds': {'pop': ['RE', 'TC', 'IN', 'PY']}},
+                          'i_GABAA': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAA_S', 'var': 'i', 'conds': {'pop': ['TC', 'PY', 'RE']}},
+                          'g_GABAA': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAA_S', 'var': 'g', 'conds': {'pop': ['TC', 'PY', 'RE']}},
+                          'i_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S2', 'var': 'i'},
+                          'g_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S2', 'var': 'g'}
+                          }
 
 simConfig.recordStim = True  # record spikes of cell stims
 simConfig.recordStep = 0.1 # Step size in ms to save data (eg. V traces, LFP, etc)
@@ -583,7 +601,7 @@ simConfig.saveFileStep = 1000 # step size in ms to save data to disk
 simConfig.analysis['plotRaster'] = {'include': ['RE', 'TC', 'IN', 'PY'], 'orderInverse': False} #True # Whether or not to plot a raster
 
 #simConfig.analysis['plotRaster'] = True  # Plot raster
-simConfig.analysis['plotTraces'] = {'include': [('PY',50),('IN',50),('TC',[50]),('RE',[40,50,60])]} # plot recorded traces for this list of cells
+simConfig.analysis['plotTraces'] = {'include': [('PY',[50]),('IN',[50]),('TC',[50]),('RE',[50])]} # plot recorded traces for this list of cells
 
 #simConfig.analysis['plotRatePSD'] = {'include': ['PY', 'IN', 'TC', 'RE'], 'Fs': 50, 'smooth': 10} # plot recorded traces for this list of cells
 
@@ -607,3 +625,9 @@ simConfig.gababTCfield = 0
 simConfig.runStopAt = simConfig.duration
 
 sim.createSimulateAnalyze(netParams = netParams, simConfig = simConfig)
+
+"""
+for nc in sim.h.List("NetCon"):
+    
+for nc in sim.net.cells[300].conns:
+""" 

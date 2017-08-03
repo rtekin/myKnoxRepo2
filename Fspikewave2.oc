@@ -2,7 +2,7 @@
 
 Implementation of:
 Destexhe, Alain, "Spike-and-Wave Oscillations Based on the Properties of GABAB Receptors"
-The Journal of Neuroscience, November 1, 1998, 18(21):9099–9111
+The Journal of Neuroscience, November 1, 1998, 18(21):9099â€“9111
 
 Andrew Knox 2014
 
@@ -217,7 +217,7 @@ proc init () {
   //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.0375,0.03,1.2,0.01,1.2,0.4)		// 25% IN->PY weight (0.0375)
   //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.015,0.03,1.2,0.01,1.2,0.4)		// 10% IN->PY weight (0.015)
   //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.0,0.03,1.2,0.01,1.2,0.4)		// 0% IN->PY A weight
-  assign_synapses(0.2,0.02,0*0.04,0.2,0.6,0.2,gabaapercent*0.15,gababpercent*0.03,0*1.2,0*0.01,1.2,0.4)		// 0% IN->PY A weight
+  assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,gabaapercent*0.15,gababpercent*0.03,0*1.2,0*0.01,1.2,0.4)		// 0% IN->PY A weight
   
   
   //assign_synapses(0.12,0.02,0.04,0.2,0.6,0.2,0,0.03,1.2,0.01,1.2,0.4)		// 0% IN->PY A weight, better RERE for new synapses
@@ -593,10 +593,10 @@ for i=0,nthalamiccells-1 {
 	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
 
 	// presynaptic is RE[i], postsynaptic is TC[j]
-	gababsyn = new GABAb_S()
- 	TC[jbound].soma gababsyn.loc(0.5)
-	TC[jbound].gababpost.append(gababsyn)
-	RE[i].soma TC[jbound].REgabablist.append(new NetCon(&v(0.5), gababsyn, 0, axondelay, 1))
+	//gababsyn = new GABAb_S()
+ 	//TC[jbound].soma gababsyn.loc(0.5)
+	//TC[jbound].gababpost.append(gababsyn)
+	RE[i].soma TC[jbound].REgabablist.append(new NetCon(&v(0.5), TC[jbound].gababpost, 0, axondelay, 1))
 	printf("[%d,%d], ",i,jbound)
    }
 }
@@ -604,37 +604,6 @@ for i=0,nthalamiccells-1 {
 print " "
 print "<< ",TC[0].REgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE TO TC >>"
 print " "
-
-
-
-/*
-//----------------------------------------------------------------------------
-//  GABAb receptors in synapses from RE to TC cells
-//----------------------------------------------------------------------------
-
-// use same diameters and connectivity as GABAa receptors (colocalized)
-objectvar gababsyn
-
-for i=0,nthalamiccells-1 {
-   for j=i-diamRETC*0,i+diamRETC*0 {
-	jbound = j
-	if (jbound < 0) jbound = abs(j) - 1
-	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
-
-	// presynaptic is RE[i], postsynaptic is TC[j]
-	gababsyn = new GABAb_S()
- 	TC[jbound].soma gababsyn.loc(0.5)
-	TC[jbound].gababpost.append(gababsyn)
-	RE[i].soma TC[jbound].REgabablist.append(new NetCon(&v(0.5), gababsyn, 0, axondelay, 1))
-	printf("[%d,%d], ",i,jbound)
-   }
-}
-	
-print " "
-print "<< ",TC[0].REgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE TO TC >>"
-print " "
-*/
-
 
 /*
 //----------------------------------------------------------------------------
@@ -951,9 +920,9 @@ proc assign_synapses() {	// procedure to assign syn conductances
     for j=0, TC[i].REgabaalist.count()-1 {
 	TC[i].REgabaalist.object(j).weight = $2 / nRETC
     }
-    for j=0, TC[i].gababpost.count()-1 {
-	TC[i].gababpost.object(j).gmax = $3 / nRETC
-	//TC[i].REgabablist.object(j).weight = $3 / nRETC
+    for j=0, TC[i].REgabablist.count()-1 {
+	//TC[i].gababpost.object(j).gmax = $3 / nRETC
+	TC[i].REgabablist.object(j).weight = $3 / nRETC
     }
     for j=0, RE[i].TClist.count()-1 {
 	RE[i].TClist.object(j).weight = $4 / nTCRE
@@ -996,7 +965,7 @@ print "INPY-GABAB_weight = ", PY[0].gababpost.object(0).gmax
 // intra-thalamic
 print "TCRE-AMPA_weight = ", RE[0].TClist.object(0).weight
 print "RETC-GABAA_weight = ", TC[0].REgabaalist.object(0).weight
-print "RETC-GABAB_weight = ", TC[0].gababpost.object(0).gmax
+print "RETC-GABAB_weight = ", TC[0].REgabablist.object(0).weight
 print "RERE-GABAA_weight = ", RE[0].REgabaalist.object(0).weight
 
 // thalamo-cortical 
@@ -1206,10 +1175,10 @@ for i=0,nstimsynapses-1 {
 //addgraph("RE[50].soma.ica",-.02,.001)
 //addgraph("RE[50].soma.ica_itrecustom",-.02,.001)
 
-addgraph("TC[50].gabaapost.i", -1, 3)
-addgraph("TC[50].gabaapost.g", -0.01, 0.02)
-addgraph("TC[50].gababpost.object(0).i", -0.001, 0.002)
-addgraph("TC[50].gababpost.object(0).g", -1e-5, 5e-5)
+addgraph("TC[50].gabaapost.i", -5, 5)
+addgraph("TC[50].gabaapost.g", -0.003, 0.003)
+addgraph("TC[50].gababpost.i", -1, 1)
+addgraph("TC[50].gababpost.g", -0.005, 0.005)
 
 
 strdef gtxt
