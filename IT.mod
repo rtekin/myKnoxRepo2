@@ -32,7 +32,7 @@ NEURON {
 	SUFFIX it
 	USEION ca READ cai,cao WRITE ica
 	GLOBAL q10
-	RANGE gcabar, m_inf, tau_m, h_inf, tau_h, shift
+	RANGE gcabar, m_inf, tau_m, h_inf, tau_h, shift, taubase
 }
 
 UNITS {
@@ -51,6 +51,7 @@ PARAMETER {
 	gcabar	= 0.002	(mho/cm2)
 	q10	= 3			: Q10 of inactivation
 	shift	= 2 	(mV)		: corresponds to 2mM ext Ca++
+	taubase	= 30.8 (mV)
 	cai	= 2.4e-4 (mM)		: adjusted for eca=120 mV
 	cao	= 2	(mM)
 }
@@ -106,7 +107,7 @@ PROCEDURE evaluate_fct(v(mV)) { LOCAL Vm
 :		tau_h = ( 28 + exp(-(Vm+22)/10.5) ) / phi_h
 :	}
 
-	tau_h = 30.8 + (211.4 + exp((Vm+113.2)/5)) / (1 + exp((Vm+84)/3.2))
+	tau_h = taubase + (211.4 + exp((Vm+113.2)/5)) / (1 + exp((Vm+84)/3.2))
 
 	tau_h = tau_h / phi_h
 

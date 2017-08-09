@@ -22,8 +22,9 @@ INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
 NEURON {
 	SUFFIX im
 	USEION k READ ek WRITE ik
-        RANGE gkbar, m_inf, tau_m, ik
-	GLOBAL taumax
+    RANGE gkbar, m_inf, tau_m, ik
+	:GLOBAL taumax
+	RANGE taumax
 
 }
 

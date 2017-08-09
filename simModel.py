@@ -25,20 +25,7 @@ def assign_synapses(gRERE_GABAA,gRETC_GABAA,gRETC_GABAB,gTCRE_AMPA,gPYPY_AMPA,gP
     # 5=PYPY 6=PYIN 7=GABAa INPY
     # 8=GABAb INPY 9=PYRE 10=PYTC
     # 11=TCPY 12=TCIN
-    """
-    nRERE = int(RE[0].REgabaalist.count())
-    nRETCa = int(TC[0].REgabaalist.count())
-    nRETCb = int(TC[0].gababpost.count())
-    nTCRE = int(RE[0].TClist.count())
-    nPYRE = int(RE[0].PYlist.count())
-    nPYTC = int(TC[0].PYlist.count())
-    nPYPY = int(PY[0].PYlist.count())
-    nPYIN = int(IN[0].PYlist.count())
-    nINPYa = int(PY[0].INgabaalist.count())
-    nINPYb = int(PY[0].gababpost.count())
-    nTCPY = int(PY[0].TClist.count())
-    nTCIN = int(IN[0].TClist.count())
-    """
+
     print "nRERE:", nRERE, "nRETCa:", nRETCa, "nRETCb:", nRETCb, "nTCRE:", nTCRE, "nPYPY:", nPYPY, "nINPYa:", nINPYa, "nINPYb:", nINPYb, "nPYRE:", nPYRE, "nPYTC:", nPYTC, "nTCPY:", nTCPY, "nTCIN:", nTCIN
     for i in range(nthalamiccells):
         for j in range(nRERE):
@@ -87,11 +74,13 @@ def printWeight(indx):
     print "PYIN-AMPA_weight = ", IN[indx].PYlist.object(0).weight[0]
     print "INPY-GABAA_weight = ", PY[indx].INgabaalist.object(0).weight[0]
     print "INPY-GABAB_weight = ", PY[indx].gababpost.object(0).gmax
+    #print "INPY-GABAB_weight = ", PY[indx].INgabablist.object(0).weight[0]
     
     # intra-thalamic
     print "TCRE-AMPA_weight = ", RE[indx].TClist.object(0).weight[0]
     print "RETC-GABAA_weight = ", TC[indx].REgabaalist.object(0).weight[0]
     print "RETC-GABAB_weight = ", TC[indx].gababpost.object(0).gmax
+    #print "RETC-GABAB_weight = ", TC[indx].REgabablist.object(0).weight[0]
     print "RERE-GABAA_weight = ", RE[indx].REgabaalist.object(0).weight[0]
     
     # thalamo-cortical 
@@ -100,6 +89,28 @@ def printWeight(indx):
     print "TCPY-AMPA_weight = ", PY[indx].TClist.object(0).weight[0]
     print "TCIN-AMPA_weight = ", IN[indx].TClist.object(0).weight[0]
 
+def printTCinfo(indx):
+    index=indx
+    print " "
+    print "----- TC Parameter values (index=",index,") -------"
+    print " "
+    
+    print "diam=",TC[index].soma.diam,"\t L=",TC[index].soma.L," \t Cm=",TC[index].soma.cm," \t Ra=",TC[index].soma.Ra
+    print "kl_gmax=",TC[index].kl.gmax,"\t Erev_kleak="#,TC[index].Erev_kleak
+    print "g_pas=",TC[index].soma.g_pas," \t e_pas=",TC[index].soma.e_pas," \t vinit=", TC[index].soma(0.5).v
+    print "gnabar_hh2=",TC[index].soma.gnabar_hh2," \t ena=", TC[index].soma.ena
+    print "gkbar_hh2=",TC[index].soma.gkbar_hh2," \t ek=",TC[index].soma.ek," \t vtraub_hh2=", TC[index].soma.vtraub_hh2
+    print "gcabar_it=",TC[index].soma.gcabar_it," \t eca=",TC[index].soma.eca," \t cai=", TC[index].soma.cai," \t cao=", TC[index].soma.cao
+    print "shift_it=",TC[index].soma.shift_it," \t taubase_it=",TC[index].soma.taubase_it
+    print "depth_cad=",TC[index].soma.depth_cad," \t taur_cad=",TC[index].soma.taur_cad," \t cainf_cad=", TC[index].soma.cainf_cad," \t kt_cad=", TC[index].soma.kt_cad
+    print "ghbar_iar=",TC[index].soma.ghbar_iar," \t eh=",TC[index].soma.eh," \t nca_iar=", TC[index].soma.nca_iar," \t k2_iar=", TC[index].soma.k2_iar
+    print "cac_iar=",TC[index].soma.cac_iar," \t nexp_iar=",TC[index].soma.nexp_iar," \t k4_iar=", TC[index].soma.k4_iar," \t Pc_iar=", TC[index].soma.Pc_iar," \t ginc_iar=", TC[index].soma.ginc_iar
+
+    print " "
+    print "----- TC Parameter values (end) -------"
+    print " "
+
+
 def printREinfo(indx):
     index=indx
     print " "
@@ -107,7 +118,7 @@ def printREinfo(indx):
     print " "
     
     print "diam=",RE[index].soma.diam,"\t L=",RE[index].soma.L," \t Cm=",RE[index].soma.cm," \t Ra=",RE[index].soma.Ra
-    print "g_pas=",RE[index].soma.g_pas," \t e_pas=",RE[index].soma.e_pas," \t vinit="
+    print "g_pas=",RE[index].soma.g_pas," \t e_pas=",RE[index].soma.e_pas," \t vinit=", RE[index].soma(0.5).v
     print "gnabar_hh2=",RE[index].soma.gnabar_hh2," \t ena=", RE[index].soma.ena
     print "gkbar_hh2=",RE[index].soma.gkbar_hh2," \t ek=",RE[index].soma.ek," \t vtraub_hh2=", RE[index].soma.vtraub_hh2
     print "gcabar_it2=",RE[index].soma.gcabar_it2," \t eca=",RE[index].soma.eca," \t cai=", RE[index].soma.cai," \t cao=", RE[index].soma.cao
@@ -118,18 +129,78 @@ def printREinfo(indx):
     print "-------- RE Parameter values (end) --------"
     print " "
 
+def printPYinfo(indx):
+    index=indx
+    print " "
+    print "------ PY Parameter values (index=",index,") ---------"
+    print " "
+    
+    print "diam=",PY[index].soma.diam,"\t L=",PY[index].soma.L," \t Cm=",PY[index].soma.cm," \t Ra=",PY[index].soma.Ra
+    print "g_pas=",PY[index].soma.g_pas," \t e_pas=",PY[index].soma.e_pas," \t vinit=", PY[index].soma(0.5).v
+    print "gnabar_hh2=",PY[index].soma.gnabar_hh2," \t ena=", PY[index].soma.ena
+    print "gkbar_hh2=",PY[index].soma.gkbar_hh2," \t ek=",PY[index].soma.ek," \t vtraub_hh2=", PY[index].soma.vtraub_hh2
+    print "gkbar_im=",PY[index].soma.gkbar_im," \t taumax_im=",PY[index].soma.taumax_im
+    
+    print " "
+    print "-------- PY Parameter values (end) --------"
+    print " "
 
+def printINinfo(indx):
+    index=indx
+    print " "
+    print "------ IN Parameter values (index=",index,") ---------"
+    print " "
+    
+    print "diam=",IN[index].soma.diam,"\t L=",IN[index].soma.L," \t Cm=",IN[index].soma.cm," \t Ra=",IN[index].soma.Ra
+    print "g_pas=",IN[index].soma.g_pas," \t e_pas=",IN[index].soma.e_pas," \t vinit=", IN[index].soma(0.5).v
+    print "gnabar_hh2=",IN[index].soma.gnabar_hh2," \t ena=", IN[index].soma.ena
+    print "gkbar_hh2=",IN[index].soma.gkbar_hh2," \t ek=",IN[index].soma.ek," \t vtraub_hh2=", IN[index].soma.vtraub_hh2
+    
+    print " "
+    print "-------- IN Parameter values (end) --------"
+    print " "
+
+#---------------------------------------------------------------------------
+#  Code for dealing with field potentials
+#---------------------------------------------------------------------------
+
+def xfield(Re, x, Ni):
+    # Re, x is distance from nearest neuron, Ni is neuron to which probe is closest
+    # assumes field comes from PY neurons, which are in a row spaced 20um apart
+    total_field = 0
+    #Re = $1
+    #x = $2
+    #Ni = $3
+    
+    for i in np.arange(fieldlower, fieldupper+1):
+        tmp = 0
+        for j in range(int(PY[i].gababpost.count())):
+            tmp = tmp + PY[i].gababpost.object(j).i
+        tmp = tmp + PY[i].gabaapost.i  + PY[i].soma.ik_im + PY[i].ampapostPY.i + PY[i].ampapostTC.i
+        #tmp = tmp + PY[i].gababpost.i + PY[i].gabaapost.i  + PY[i].soma.ik_im + PY[i].ampapostPY.i + PY[i].ampapostTC.i
+        total_field = total_field + tmp / np.sqrt(x**2 + 400*(Ni-i)**2)
+    
+    #print "t=", h.t, "total_field = ", total_field * Re/4./np.pi
+    return total_field * Re/4./np.pi
+
+    
 ncorticalcells = 100
 nthalamiccells = 100
 narrowdiam = 5
 widediam = 10
 
-watchneuron = 50 
+fieldlower = 30
+fieldupper = 70
+fielddist = 50
+field = []
+
+watchneuron = 50*0
 axondelay = 0
 
 smallPY = 1
+stimtime = 10050
 
-gabaapercent = 0
+gabaapercent = 1
 gababpercent = 1
 
 celsius = 36
@@ -139,6 +210,7 @@ randvolt = h.Random()
 randvolt.uniform(-80,-65)
 
 recncs = []
+
 #----------------------------------------------------------------------------
 #  Create Cells
 #----------------------------------------------------------------------------
@@ -148,7 +220,8 @@ print "<<            CREATE CELLS          >>"
 print "<<==================================>>"
 print " "
 
-h.xopen("sPY.tem")      # read geometry file
+h.load_file("sPY.tem")
+#h.xopen("sPY.tem")      # read geometry file
 PY = []     # create PY cells
 PYVtrace = [] 
 for i in range(ncorticalcells):
@@ -156,7 +229,8 @@ for i in range(ncorticalcells):
     #cell.soma.v = randvolt.repick()
     PY.append(cell)
 
-h.xopen("sIN.tem")      # read geometry file
+h.load_file("sIN.tem")
+#h.xopen("sIN.tem")      # read geometry file
 IN = []     # create IN cells
 INVtrace = [] 
 for i in range(ncorticalcells):
@@ -164,7 +238,8 @@ for i in range(ncorticalcells):
     #cell.soma.v = randvolt.repick()
     IN.append(cell)
 
-h.xopen("TC.tem")
+h.load_file("TC.tem")
+#h.xopen("TC.tem")
 TC = []     # create TC cells
 TCVtrace = [] 
 for i in range(nthalamiccells):
@@ -172,7 +247,8 @@ for i in range(nthalamiccells):
     #cell.soma.v = randvolt.repick()
     TC.append(cell)
 
-h.xopen("RE.tem")
+h.load_file("RE.tem")
+#h.xopen("RE.tem")
 RE = []     # create RE cells
 REVtrace = [] 
 for i in range(nthalamiccells):
@@ -224,7 +300,7 @@ for i in range(ncorticalcells):
         #print "[%d,%d], "%(i,jbound)
 
 print " "
-print "<< ",int(PY[0].PYlist.count())," AMPA-MEDIATED SYNAPTIC CONTACTS FROM PY TO IN >>"
+print "<< ",int(PY[0].PYlist.count())," AMPA-MEDIATED SYNAPTIC CONTACTS FROM PY TO PY >>"
 print " "
 
 
@@ -316,6 +392,38 @@ print " "
 print "<< ",int(PY[0].INgabablist.count())," GABAb-MEDIATED SYNAPTIC CONTACTS FROM IN TO PY >>"
 print " "
 
+"""
+#--------------------------------------------------
+#  GABAb receptors in synapses from IN to PY cells
+#--------------------------------------------------
+diamINPYb = narrowdiam		# diameter of connectivity from IN->PY
+nINPYb = ncon(diamINPYb,ncorticalcells)	
+
+for i in range(ncorticalcells):
+    for j in range(i-diamINPYb,i+diamINPYb+1):
+        jbound = j
+        if jbound < 0: jbound = abs(j) - 1
+        if jbound > ncorticalcells-1: jbound = 2 * ncorticalcells - jbound - 1 
+        src = IN[i]
+        tgt = PY[jbound]
+        syn = tgt.gababpost
+        syn.K1	= 0.09    #	(/ms mM) forward binding to receptor
+        syn.K2	= 0.0012  #	(/ms)	backward (unbinding)of receptor
+        syn.K3	= 0.18   # 0.098 # (/ms)	rate of G-protein production
+        syn.K4	= 0.034  #	(/ms)	rate of G-protein decay  -  larger number = slower decay?
+        syn.KD	= 100	#	dissociation constant of K+ channel
+        syn.n	= 4	      # of binding sites of G-protein on K+
+        syn.Cmax = 0.5		# short pulses
+        syn.Cdur = 0.3
+        syn.Erev = -95	#	(mV)	reversal potential (E_K)
+        nc = h.NetCon(src.soma(0.5)._ref_v, syn, 0, axondelay, 1, sec=src.soma)
+        tgt.INgabablist.append(nc)
+        #print "[%d,%d], "%(i,jbound)
+
+print " "
+print "<< ",int(PY[0].INgabablist.count())," GABAb-MEDIATED SYNAPTIC CONTACTS FROM IN TO PY >>"
+print " "
+"""
 
 ######################## intra Thalamic synapses ############################
 #----------------------------------------------------------------------------
@@ -436,6 +544,43 @@ for i in range(nthalamiccells):
 print " "
 print "<< ",int(TC[0].REgabablist.count())," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE TO TC >>"
 print " "
+
+"""
+#--------------------------------------------------
+#  GABAb receptors in synapses from RE to TC cells
+#--------------------------------------------------
+
+diamRETCb = narrowdiam		# diameter of connectivity from RE->TC
+nRETCb = ncon(diamRETCb,nthalamiccells)	# nb of RE cells receiving synapses from one TC cell
+
+#objectvar gababsyn
+
+for i in range(nthalamiccells):
+    for j in range(i-diamRETCb,i+diamRETCb+1):
+        jbound = j
+        if jbound < 0: jbound = abs(j) - 1
+        if jbound > ncorticalcells-1: jbound = 2 * ncorticalcells - jbound - 1 
+        src = RE[i]
+        tgt = TC[jbound]
+        syn = tgt.gababpost
+        syn.K1	= 0.09    #	(/ms mM) forward binding to receptor
+        syn.K2	= 0.0012  #	(/ms)	backward (unbinding)of receptor
+        syn.K3	= 0.18   # 0.098 # (/ms)	rate of G-protein production
+        syn.K4	= 0.034  #	(/ms)	rate of G-protein decay  -  larger number = slower decay?
+        syn.KD	= 100	#	dissociation constant of K+ channel
+        syn.n	= 4	      # of binding sites of G-protein on K+
+        syn.Cmax = 0.5		# short pulses
+        syn.Cdur = 0.3
+        syn.Erev = -95	#	(mV)	reversal potential (E_K)
+        #syn.gmax = gRETC_GABAB / nRETCb
+        nc = h.NetCon(src.soma(0.5)._ref_v, syn, 0, axondelay, 1, sec=src.soma)
+        tgt.REgabablist.append(nc)
+        #print "[%d,%d], "%(i,jbound)
+	
+print " "
+print "<< ",int(TC[0].REgabablist.count())," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE TO TC >>"
+print " "
+"""
 
 ######################## Thalamo-Cortical synapses ############################
 #----------------------------------------------------------------------------
@@ -576,9 +721,9 @@ for i in range(nthalamiccells):
 #----------------------------------------------------------------------------
 #  set up current stimulus to cells
 #----------------------------------------------------------------------------
-"""
+
 PYstim = []
-stimtime = 500
+
 
 if smallPY==1:
     #for i in range(ncorticalcells/20):
@@ -587,7 +732,7 @@ if smallPY==1:
         stim = h.IClamp(0.5, sec=PY[(i*(ncorticalcells/5-1)+11)*0+i].soma)
         stim.delay = stimtime
         stim.dur = 100
-        stim.amp = 0.7*5
+        stim.amp = 0.7
         PYstim.append(stim)
 
 """    
@@ -599,7 +744,7 @@ ncstim = h.NetCon(stim, syn_)
 ncstim.delay = 1
 ncstim.weight[0] = 1.5*3 # NetCon weight is a vector.
 syn_.tau = 0.1
-
+"""
 
 h("objref nil")
 for i in range(ncorticalcells):
@@ -638,44 +783,211 @@ t_vec.record(h._ref_t)
 #syn_i_vec = h.Vector()
 #syn_i_vec.record(syn_._ref_i)
 
-h.dt = 0.01
+gabaapost = TC[0].gabaapost
+GABAa0_i_vec = h.Vector()
+GABAa0_i_vec.record(gabaapost._ref_i)
+GABAa0_g_vec = h.Vector()
+GABAa0_g_vec.record(gabaapost._ref_g)
+GABAa0_gmax_vec = h.Vector()
+GABAa0_gmax_vec.record(gabaapost._ref_gmax)
+GABAa0_Ron_vec = h.Vector()
+GABAa0_Ron_vec.record(gabaapost._ref_Ron)
+GABAa0_Roff_vec = h.Vector()
+GABAa0_Roff_vec.record(gabaapost._ref_Roff)
+
+#gababpost = TC[0].gababpost
+gababpost = TC[0].gababpost.object(0)
+GABAb0_i_vec = h.Vector()
+GABAb0_i_vec.record(gababpost._ref_i)
+GABAb0_g_vec = h.Vector()
+GABAb0_g_vec.record(gababpost._ref_g)
+GABAb0_gmax_vec = h.Vector()
+GABAb0_gmax_vec.record(gababpost._ref_gmax)
+GABAb0_Ron_vec = h.Vector()
+GABAb0_Ron_vec.record(gababpost._ref_Ron)
+GABAb0_Roff_vec = h.Vector()
+GABAb0_Roff_vec.record(gababpost._ref_Roff)
+GABAb0_R_vec = h.Vector()
+GABAb0_R_vec.record(gababpost._ref_R)
+GABAb0_G_vec = h.Vector()
+GABAb0_G_vec.record(gababpost._ref_G)
+
 #h.tstop = 1000
-tstop = 1000
+tstop = 3000
 
 
 # run the simulation
 
+gRERE_GABAA = 0.2
+gRETC_GABAA = 0.02
+gRETC_GABAB = 0.04
+gTCRE_AMPA = 0.2
+gPYPY_AMPA = 0.6
+gPYIN_AMPA = 0.2
+gINPY_GABAA = gabaapercent*0.15
+gINPY_GABAB = gababpercent*0.03
+gPYRE_AMPA = 1.2
+gPYTC_AMPA = 0.01
+gTCPY_AMPA = 1.2
+gTCIN_AMPA = 0.4
+
+
 def go():
+    h.dt=0.1
+    h.celsius=celsius
+    h.finitialize(v_init)
+    #neuron.init()
+    printPYinfo(0)
+    printINinfo(0)
+    printTCinfo(0)
     printREinfo(0)
     
-    h.finitialize(v_init)
-    
-    # params:       RERE, RETCa, RETCb, TCRE, PYPY, PYIN, INPYa,             INPYb,              PYRE,   PYTC,   TCPY,   TCIN
-    assign_synapses(0.2,  0.02,  0.04,  0.2,  0.6,  0.2,  gabaapercent*0.15, gababpercent*0.03,  0*1.2,  0*0.01, 0*1.2,  0*0.4)
+    # params:       RERE,   RETCa,   ***RETCb,   TCRE,   PYPY,   PYIN,   INPYa,              ***INPYb,            **PYRE,   PYTC,   TCPY,   TCIN
+    assign_synapses(0.2,    0.02,    0*0.04,       0.2,    0.6,    0.2,     gabaapercent*0.15,  0*gababpercent*0.03,    1.2,    0.01,   1.2,    0.4)
+    #assign_synapses(gRERE_GABAA, gRETC_GABAA, gRETC_GABAB, gTCRE_AMPA, gPYPY_AMPA, gPYIN_AMPA, gINPY_GABAA, gINPY_GABAB, gPYRE_AMPA, gPYTC_AMPA, gTCPY_AMPA, gTCIN_AMPA)
+
     printWeight(0)
     
     h.fcurrent()
     h.cvode.re_init()
     h.frecord_init()
     
+    field.append(0)
     while h.t<tstop:
         h.fadvance()
+        field.append(xfield(230,fielddist,watchneuron))
 
 go()
 
-#h.run()
+"""
 
+h.dt=0.1
+h.celsius=celsius
+h.tstop=tstop
+h.finitialize(v_init)
+printPYinfo(0)
+printINinfo(0)
+printTCinfo(0)
+printREinfo(0)
+
+# params:       RERE, RETCa,   RETCb,   TCRE,   PYPY,   PYIN, INPYa,               INPYb,                PYRE,   PYTC,   TCPY,   TCIN
+assign_synapses(0.2,  0*0.02,  0*0.04,  0*0.2,  0*0.6,  0.2,  0*gabaapercent*0.15, 0*gababpercent*0.03,  0*1.2,  0*0.01, 0*1.2,  0*0.4)
+printWeight(0)
+
+h.fcurrent()
+h.cvode.re_init()
+h.frecord_init()
+h.run()
+"""
 #------------------------------------------
 # figures
 #------------------------------------------
+
+# synaptic  param plot
+fig = pyplot.figure(figsize=(8,4))
+ax1 = fig.add_subplot(6,1,1)
+i1 = ax1.plot(t_vec, GABAa0_i_vec, color='black')
+ax1.legend(i1, ['TC[0] GABAA_i'])
+ax1.set_ylabel('nA')
+ax1.set_xticks([]) # Use ax2's tick labels
+
+ax2 = fig.add_subplot(6,1,2)
+g1 = ax2.plot(t_vec, GABAa0_g_vec, color='black')
+ax2.legend(g1, ['TC[0] GABAA_g'])
+ax2.set_ylabel('#')
+#ax2.set_xlabel('time (ms)')
+ax2.set_xticks([]) # Use ax2's tick labels
+
+ax3 = fig.add_subplot(6,1,3)
+gmax1 = ax3.plot(t_vec, GABAa0_gmax_vec, color='black')
+ax3.legend(gmax1, ['TC[0] GABAA_gmax'])
+ax3.set_ylabel('#')
+#ax3.set_xlabel('time (ms)')
+ax3.set_xticks([]) # Use ax2's tick labels
+              
+ax4 = fig.add_subplot(6,1,4)
+Ron1 = ax4.plot(t_vec, GABAa0_Ron_vec, color='black')
+ax4.legend(Ron1, ['TC[0] GABAA_Ron'])
+ax4.set_ylabel('#')
+#ax4.set_xlabel('time (ms)')
+ax4.set_xticks([]) # Use ax2's tick labels
+
+ax5 = fig.add_subplot(6,1,5)
+Roff1 = ax5.plot(t_vec, GABAa0_Roff_vec, color='black')
+ax5.legend(Roff1, ['TC[0] GABAA_Roff'])
+ax5.set_ylabel('#')
+ax5.set_xlabel('time (ms)')
+#ax5.set_xticks([]) # Use ax2's tick labels
+
+
+
+fig = pyplot.figure(figsize=(8,4))
+ax1 = fig.add_subplot(7,1,1)
+i2 = ax1.plot(t_vec, GABAb0_i_vec, color='black')
+ax1.legend(i1, ['TC[0] GABAB_i'])
+ax1.set_ylabel('nA')
+ax1.set_xticks([]) # Use ax2's tick labels
+
+ax2 = fig.add_subplot(7,1,2)
+g1 = ax2.plot(t_vec, GABAb0_g_vec, color='black')
+ax2.legend(g1, ['TC[0] GABAB_g'])
+ax2.set_ylabel('#')
+#ax2.set_xlabel('time (ms)')
+ax2.set_xticks([]) # Use ax2's tick labels
+
+ax3 = fig.add_subplot(7,1,3)
+gmax1 = ax3.plot(t_vec, GABAb0_gmax_vec, color='black')
+ax3.legend(g1, ['TC[0] GABAB_gmax'])
+ax3.set_ylabel('#')
+#ax3.set_xlabel('time (ms)')
+ax3.set_xticks([]) # Use ax2's tick labels
+              
+ax4 = fig.add_subplot(7,1,4)
+Ron1 = ax4.plot(t_vec, GABAb0_Ron_vec, color='black')
+ax4.legend(Ron1, ['TC[0] GABAB_Ron'])
+ax4.set_ylabel('#')
+#ax4.set_xlabel('time (ms)')
+ax4.set_xticks([]) # Use ax2's tick labels
+
+ax5 = fig.add_subplot(7,1,5)
+Roff1 = ax5.plot(t_vec, GABAb0_Roff_vec, color='black')
+ax5.legend(Roff1, ['TC[0] GABAB_Roff'])
+ax5.set_ylabel('#')
+#ax5.set_xlabel('time (ms)')
+ax5.set_xticks([]) # Use ax2's tick labels
+
+ax6 = fig.add_subplot(7,1,6)
+R1 = ax6.plot(t_vec, GABAb0_R_vec, color='black')
+ax6.legend(R1, ['TC[0] GABAB_R'])
+ax6.set_ylabel('#')
+#ax6.set_xlabel('time (ms)')
+ax6.set_xticks([]) # Use ax2's tick labels
+
+ax7 = fig.add_subplot(7,1,7)
+G1 = ax7.plot(t_vec, GABAb0_G_vec, color='black')
+ax7.legend(G1, ['TC[0] GABAB_G'])
+ax7.set_ylabel('#')
+ax7.set_xlabel('time (ms)')
+
+
+"""
+ax2 = fig.add_subplot(2,1,2)
+syn_plot = ax2.plot(t_vec, syn_i_vec, color='blue')
+ax2.legend(syn_plot, ['synaptic current'])
+ax2.set_ylabel(h.units('ExpSyn.i'))
+ax2.set_xlabel('time (ms)')
+pyplot.show()
+"""
+
 # voltage traces
 fig = pyplot.figure(figsize=(8,4))
 ax1 = fig.add_subplot(1,1,1)
-PY1 = ax1.plot(t_vec, PYVtrace[0], color='black')
-PY2 = ax1.plot(t_vec, PYVtrace[11], color='red')
-PY3 = ax1.plot(t_vec, PYVtrace[30], color='blue')
-PY4 = ax1.plot(t_vec, PYVtrace[49], color='green')
-ax1.legend(PY1 + PY2 + PY3 + PY4, ['PY1', 'PY2', 'PY%d'%(ncorticalcells/3), 'PY%d'%(ncorticalcells/2)])
+PY1 = ax1.plot(t_vec, PYVtrace[watchneuron], color='black')
+ax1.legend(PY1, ['PY[%d]'%(watchneuron)])
+#PY2 = ax1.plot(t_vec, PYVtrace[1], color='red')
+#PY3 = ax1.plot(t_vec, PYVtrace[nthalamiccells/3-1], color='blue')
+#PY4 = ax1.plot(t_vec, PYVtrace[nthalamiccells/2-1], color='green')
+#ax1.legend(PY1 + PY2 + PY3 + PY4, ['PY1', 'PY2', 'PY%d'%(ncorticalcells/3), 'PY%d'%(ncorticalcells/2)])
 ax1.set_ylabel('mV')
 #ax1.set_xticks([]) # Use ax2's tick labels
 ax1.set_xlabel('time (ms)')
@@ -690,11 +1002,12 @@ pyplot.show()
 
 fig = pyplot.figure(figsize=(8,4))
 ax1 = fig.add_subplot(1,1,1)
-IN1 = ax1.plot(t_vec, INVtrace[0], color='black')
-IN2 = ax1.plot(t_vec, INVtrace[1], color='red')
-IN3 = ax1.plot(t_vec, INVtrace[ncorticalcells/3-1], color='blue')
-IN4 = ax1.plot(t_vec, INVtrace[ncorticalcells/2-1], color='green')
-ax1.legend(IN1 + IN2 + IN3 + IN4, ['IN1', 'IN2', 'IN%d'%(ncorticalcells/3), 'IN%d'%(ncorticalcells/2)])
+IN1 = ax1.plot(t_vec, INVtrace[watchneuron], color='black')
+ax1.legend(IN1, ['IN[%d]'%(watchneuron)])
+#IN2 = ax1.plot(t_vec, INVtrace[1], color='red')
+#IN3 = ax1.plot(t_vec, INVtrace[ncorticalcells/3-1], color='blue')
+#IN4 = ax1.plot(t_vec, INVtrace[ncorticalcells/2-1], color='green')
+#ax1.legend(IN1 + IN2 + IN3 + IN4, ['IN1', 'IN2', 'IN%d'%(ncorticalcells/3), 'IN%d'%(ncorticalcells/2)])
 ax1.set_ylabel('mV')
 #ax1.set_xticks([]) # Use ax2's tick labels
 ax1.set_xlabel('time (ms)')
@@ -702,10 +1015,11 @@ ax1.set_xlabel('time (ms)')
 fig = pyplot.figure(figsize=(8,4))
 ax1 = fig.add_subplot(1,1,1)
 TC1 = ax1.plot(t_vec, TCVtrace[0], color='black')
-TC2 = ax1.plot(t_vec, TCVtrace[1], color='red')
-TC3 = ax1.plot(t_vec, TCVtrace[nthalamiccells/3-1], color='blue')
-TC4 = ax1.plot(t_vec, TCVtrace[nthalamiccells/2-1], color='green')
-ax1.legend(TC1 + TC2 + TC3 + TC4, ['TC1', 'TC2', 'TC%d'%(nthalamiccells/3), 'TC%d'%(nthalamiccells/2)])
+ax1.legend(TC1, ['TC[%d]'%(watchneuron)])
+#TC2 = ax1.plot(t_vec, TCVtrace[1], color='red')
+#TC3 = ax1.plot(t_vec, TCVtrace[nthalamiccells/3-1], color='blue')
+#TC4 = ax1.plot(t_vec, TCVtrace[nthalamiccells/2-1], color='green')
+#ax1.legend(TC1 + TC2 + TC3 + TC4, ['TC1', 'TC2', 'TC%d'%(nthalamiccells/3), 'TC%d'%(nthalamiccells/2)])
 ax1.set_ylabel('mV')
 #ax1.set_xticks([]) # Use ax2's tick labels
 ax1.set_xlabel('time (ms)')
@@ -713,37 +1027,55 @@ ax1.set_xlabel('time (ms)')
 fig = pyplot.figure(figsize=(8,4))
 ax1 = fig.add_subplot(1,1,1)
 RE1 = ax1.plot(t_vec, REVtrace[0], color='black')
-RE2 = ax1.plot(t_vec, REVtrace[1], color='red')
-RE3 = ax1.plot(t_vec, REVtrace[nthalamiccells/3-1], color='blue')
-RE4 = ax1.plot(t_vec, REVtrace[nthalamiccells/2-1], color='green')
-ax1.legend(RE1 + RE2 + RE3 + RE4, ['RE1', 'RE2', 'RE%d'%(nthalamiccells/3), 'RE%d'%(nthalamiccells/2)])
+ax1.legend(RE1, ['RE[%d]'%(watchneuron)])
+#RE2 = ax1.plot(t_vec, REVtrace[1], color='red')
+#RE3 = ax1.plot(t_vec, REVtrace[nthalamiccells/3-1], color='blue')
+#RE4 = ax1.plot(t_vec, REVtrace[nthalamiccells/2-1], color='green')
+#ax1.legend(RE1 + RE2 + RE3 + RE4, ['RE1', 'RE2', 'RE%d'%(nthalamiccells/3), 'RE%d'%(nthalamiccells/2)])
 ax1.set_ylabel('mV')
 #ax1.set_xticks([]) # Use ax2's tick labels
 ax1.set_xlabel('time (ms)')
 
 #----------------------------------------------------------------------------
+# field plot
+#----------------------------------------------------------------------------
+fig = pyplot.figure(figsize=(8,4))
+ax1 = fig.add_subplot(1,1,1)
+field = ax1.plot(t_vec, field, color='black')
+ax1.legend(field, ['field'])
+ax1.set_ylabel('mV')
+ax1.set_xlabel('time (ms)')
+
+#----------------------------------------------------------------------------
 # Raster plot
 #----------------------------------------------------------------------------
-#sp = spikeplot.SpikePlot(spikes,label='spikes1',savefig=True,marker='.',markerscale=1)
-#sp.plot_spikes(spikes)
-sp = spikeplot.SpikePlot()
-sp.set_markerscale(1)
+labels = ['PY', 'IN', 'TC', 'RE']
+y=[50,150,250,350]
+fig_handle = pyplot.figure(figsize=(8,4))
+ax = fig_handle.add_subplot(111)
+ax.set_title('Raster plot')
+ax.set_xlabel('$t$ (ms)') # Note LaTeX
+ax.set_yticks([])
+
+
+sp = spikeplot.SpikePlot(fig=fig_handle)
+sp.set_markerscale(2)
 sp.set_marker('.')
 
 PYspikes = spiketrain.netconvecs_to_listoflists(PYtimevec, PYidvec)
 sp.set_markercolor('black')
-sp.plot_spikes(PYspikes, draw=False, label='spikes')
+sp.plot_spikes(PYspikes, draw=False, label='PY')
 
 INspikes = spiketrain.netconvecs_to_listoflists(INtimevec, INidvec)
 sp.set_markercolor('blue')
-sp.plot_spikes(INspikes, cell_offset=len(PYspikes))
+sp.plot_spikes(INspikes, cell_offset=len(PYspikes), label='IN')
 
 TCspikes = spiketrain.netconvecs_to_listoflists(TCtimevec, TCidvec)
 sp.set_markercolor('red')
-sp.plot_spikes(TCspikes, cell_offset=len(INspikes))
+sp.plot_spikes(TCspikes, cell_offset=len(PYspikes)+len(INspikes), label='TC')
 
 REspikes = spiketrain.netconvecs_to_listoflists(REtimevec, REidvec)
 sp.set_markercolor('green')
-sp.plot_spikes(REspikes, cell_offset=len(TCspikes))
-
-
+sp.plot_spikes(REspikes, cell_offset=len(PYspikes)+len(INspikes)+len(TCspikes), label='RE')
+pyplot.xlim(0,tstop)
+pyplot.yticks(y, labels)

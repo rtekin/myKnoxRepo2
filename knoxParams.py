@@ -223,8 +223,7 @@ netParams.synMechParams['GABAA_S'] = {'mod': 'GABAa_S', 'Cmax': 0.5, 'Cdur': 0.3
 
 # GABAb_S
 #netParams.synMechParams['GABAB'] = {'mod': 'Exp2Syn', 'tau1': 0.07, 'tau2': 9.1, 'e': -80}  # GABAB
-netParams.synMechParams['GABAB_S1'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95, 'gmax': 0.03/(N_PY*IN_PY_GABAB_Prob+1)} # }  # GABAB
-netParams.synMechParams['GABAB_S2'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95, 'gmax': 0.04/(N_TC*RE_TC_GABAB_Prob+1)} # }  # GABAB
+netParams.synMechParams['GABAB_S'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
 #netParams.synMechParams['GABAB_S'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.52, 'K2': 0.0045, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
 
 # gap
@@ -346,12 +345,12 @@ netParams.connParams['IN->PY_GABAA'] = {
 netParams.connParams['IN->PY_GABAB'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0*1, # 0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
+    'weight': 0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.03,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB_S1',
+    'synMech': 'GABAB_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': IN_PY_GABAB_Prob}
     'connList': smallWorldConn(N_IN,N_PY,pCrx,IN_PY_GABAB_Prob)}   
@@ -390,12 +389,12 @@ netParams.connParams['RE->TC_GABAA'] = {
 netParams.connParams['RE->TC_GABAB'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0*1, #0.04/(N_TC*RE_TC_GABAB_Prob+1),         # (Destexhe, 1998)
+    'weight': 0.04/(N_TC*RE_TC_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.04,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB_S2',
+    'synMech': 'GABAB_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': RE_TC_GABAB_Prob}
     'connList': smallWorldConn(N_RE,N_TC,pThl,RE_TC_GABAB_Prob)}
@@ -579,8 +578,8 @@ simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'},
                           #'g_AMPA': {'sec':'soma', 'loc':0.5, 'synMech': 'AMPA_S', 'var': 'g', 'conds': {'pop': ['RE', 'TC', 'IN', 'PY']}},
                           'i_GABAA': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAA_S', 'var': 'i', 'conds': {'pop': ['TC', 'PY', 'RE']}},
                           'g_GABAA': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAA_S', 'var': 'g', 'conds': {'pop': ['TC', 'PY', 'RE']}},
-                          'i_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S2', 'var': 'i'},
-                          'g_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S2', 'var': 'g'}
+                          'i_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S', 'var': 'i'},
+                          'g_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S', 'var': 'g'}
                           }
 
 simConfig.recordStim = True  # record spikes of cell stims

@@ -84,8 +84,9 @@ NEURON {
 	SUFFIX iar
 	USEION h READ eh WRITE ih VALENCE 1
 	USEION ca READ cai
-        RANGE ghbar, h_inf, tau_s, m, shift
-	GLOBAL k2, cac, k4, Pc, nca, nexp, ginc, taum
+    RANGE ghbar, h_inf, tau_s, m, shift
+	:GLOBAL k2, cac, k4, Pc, nca, nexp, ginc, taum
+	RANGE k2, cac, k4, Pc, nca, nexp, ginc, taum
 }
 
 UNITS {

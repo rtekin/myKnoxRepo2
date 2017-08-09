@@ -32,7 +32,7 @@ NEURON {
 	SUFFIX ittccustom
 	USEION ca READ cai,cao WRITE ica
 	GLOBAL q10
-	RANGE gcabar, m_inf, tau_m, h_inf, tau_h, shift
+	RANGE gcabar, m_inf, tau_m, h_inf, tau_h, shift, taubase
 }
 
 UNITS {
@@ -51,7 +51,7 @@ PARAMETER {
 	gcabar	= 0.002	(mho/cm2)
 	q10	= 3			: Q10 of inactivation
 	shift	= 2 	(mV)		: original 2  : corresponds to 2mM ext Ca++
-	taubase (mV)
+	taubase = 30.8 (mV)
 	cai	= 2.4e-4 (mM)		: adjusted for eca=120 mV
 	cao	= 2	(mM)
 }

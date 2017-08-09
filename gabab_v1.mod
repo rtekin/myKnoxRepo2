@@ -1,8 +1,6 @@
-
-TITLE simple GABAb receptors
+: $Id: gabab.mod,v 1.9 2004/06/17 16:04:05 billl Exp $
 
 COMMENT
-
 -----------------------------------------------------------------------------
 
 	Kinetic model of GABA-B receptors
@@ -103,13 +101,11 @@ ENDCOMMENT
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
 
 NEURON {
-	POINT_PROCESS GABAb_S
-	RANGE R, G, Gn, g, gmax, synon, Ron, Roff
+	POINT_PROCESS GABAb_S_v1
+	RANGE R, G, g
 	NONSPECIFIC_CURRENT i
-	:GLOBAL Cmax, Cdur
-	:GLOBAL K1, K2, K3, K4, KD, Erev
-	RANGE Cmax, Cdur
-	RANGE K1, K2, K3, K4, n, KD, Erev	
+	GLOBAL Cmax, Cdur
+	GLOBAL K1, K2, K3, K4, KD, Erev
 }
 UNITS {
 	(nA) = (nanoamp)
@@ -125,14 +121,13 @@ PARAMETER {
 :
 :	From Kfit with long pulse (5ms 0.5mM)
 :
-	K1	= 0.09	(/ms mM)	: forward binding rate to receptor (0.52)
-	K2	= 0.0012 (/ms)		: backward (unbinding) rate of receptor (.0013)
-	K3	= 0.18 (/ms)		: rate of G-protein production (0.098)
-	K4	= 0.034 (/ms)		: rate of G-protein decay
+	K1	= 0.52	(/ms mM)	: forward binding rate to receptor
+	K2	= 0.0013 (/ms)		: backward (unbinding) rate of receptor
+	K3	= 0.098 (/ms)		: rate of G-protein production
+	K4	= 0.033 (/ms)		: rate of G-protein decay
 	KD	= 100			: dissociation constant of K+ channel
 	n	= 4			: nb of binding sites of G-protein on K+
 	Erev	= -95	(mV)		: reversal potential (E_K)
-	gmax		(umho)	:maximal conductance
 }
 
 
@@ -168,8 +163,7 @@ INITIAL {
 BREAKPOINT {
 	SOLVE bindkin METHOD cnexp
 	Gn = G*G*G*G : ^n = 4
-	g = gmax * Gn / (Gn+KD)
-	:g = Gn / (Gn+KD)
+	g = Gn / (Gn+KD)
 	i = g*(v - Erev)
 }
 
@@ -185,17 +179,14 @@ DERIVATIVE bindkin {
 : summation from multiple inputs
 : Note: automatic initialization of all reference args to 0 except first
 
-NET_RECEIVE(weight (umho),  r0, t0 (ms)) {
-	if (flag == 1) { 
-	: at end of Cdur pulse so turn off
+NET_RECEIVE(weight,  r0, t0 (ms)) {
+	if (flag == 1) { : at end of Cdur pulse so turn off
 		r0 = weight*(Rinf + (r0 - Rinf)*exp(-(t - t0)/Rtau))
 		t0 = t
 		synon = synon - weight
 		state_discontinuity(Ron, Ron - r0)
 		state_discontinuity(Roff, Roff + r0)
-        }
-	else{ 
-	: at beginning of Cdur pulse so turn on
+        }else{ : at beginning of Cdur pulse so turn on
 		r0 = weight*r0*exp(-Beta*(t - t0))
 		t0 = t
 		synon = synon + weight
@@ -205,3 +196,9 @@ NET_RECEIVE(weight (umho),  r0, t0 (ms)) {
 		net_send(Cdur, 1)
         }
 }
+
+
+
+
+
+
