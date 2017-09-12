@@ -26,7 +26,7 @@ simConfig = specs.SimConfig()   # object of class SimConfig to store the simulat
 import random as rnd
 import numpy as np
 
-def smallWorldConn(NPre, NPost, p, K):
+def smallWorldConn(NPre, NPost, p, K, selfConn=True):
     ''' k is smallwordness parameters
     K is ratio of connections from each pre cell to post cells
     if p=0 regular network
@@ -45,7 +45,8 @@ def smallWorldConn(NPre, NPost, p, K):
             if jbound < 0: jbound = abs(j) - 1
             if jbound > NPost-1: jbound = 2 * NPost - jbound - 1 
             #if (jbound >= 0 and jbound <= NPost-1):
-            connMat.append([i,jbound])
+            if i!=jbound or selfConn:
+                connMat.append([i,jbound])
             
     if p:
         connects = [x for x in range(len(connMat))]
@@ -93,6 +94,94 @@ def createList(NPre, NPost, K, val):
     return lst
 """
 
+def printWeight():
+    # intra-cortical
+    print "PYPY-AMPA_weight = ", netParams.connParams['PY->PY_AMPA']['weight']
+    print "PYIN-AMPA_weight = ", netParams.connParams['PY->IN_AMPA']['weight']
+    print "INPY-GABAA_weight = ", netParams.connParams['IN->PY_GABAA']['weight']
+    print "INPY-GABAB_weight = ", netParams.synMechParams['GABAB_S1']['gmax']
+    #print "INPY-GABAB_weight = ", netParams.connParams['IN->PY_GABAB']['weight']
+    
+    # intra-thalamic
+    print "TCRE-AMPA_weight = ", netParams.connParams['TC->RE']['weight']
+    print "RETC-GABAA_weight = ", netParams.connParams['RE->TC_GABAA']['weight']
+    print "RETC-GABAB_weight = ", netParams.synMechParams['GABAB_S2']['gmax']
+    #print "RETC-GABAB_weight = ", netParams.connParams['RE->TC_GABAB']['weight']
+    print "RERE-GABAA_weight = ", netParams.connParams['RE->RE']['weight']
+    
+    # thalamo-cortical 
+    print "PYTC-AMPA_weight = ", netParams.connParams['PY->TC']['weight']
+    print "PYRE-AMPA_weight = ", netParams.connParams['PY->RE']['weight']
+    print "TCPY-AMPA_weight = ", netParams.connParams['TC->PY']['weight']
+    print "TCIN-AMPA_weight = ", netParams.connParams['TC->IN']['weight']
+
+def printPYinfo(cellParams):
+    print " "
+    print "------ PY Parameter values ---------"
+    print " "
+    
+    print "diam=",cellParams.secs.soma.geom.diam,"\t L=",cellParams.secs.soma.geom.L," \t Cm=",cellParams.secs.soma.geom.cm," \t Ra=",cellParams.secs.soma.geom.Ra
+    print "g_pas=",cellParams.secs.soma.mechs.pas.g," \t e_pas=",cellParams.secs.soma.mechs.pas.e," \t vinit=", cellParams.secs.soma.vinit
+    print "gnabar_hh2=",cellParams.secs.soma.mechs.hh2.gnabar," \t ena=", cellParams.secs.soma.ions.na.e
+    print "gkbar_hh2=",cellParams.secs.soma.mechs.hh2.gkbar," \t ek=",cellParams.secs.soma.ions.k.e," \t vtraub_hh2=", cellParams.secs.soma.mechs.hh2.vtraub
+    print "gkbar_im=",cellParams.secs.soma.mechs.im.gkbar," \t taumax_im=",cellParams.secs.soma.mechs.im.taumax
+    
+    print " "
+    print "-------- PY Parameter values (end) --------"
+    print " "
+
+def printINinfo(cellParams):
+    print " "
+    print "------ IN Parameter values ---------"
+    print " "
+    
+    print "diam=",cellParams.secs.soma.geom.diam,"\t L=",cellParams.secs.soma.geom.L," \t Cm=",cellParams.secs.soma.geom.cm," \t Ra=",cellParams.secs.soma.geom.Ra
+    print "g_pas=",cellParams.secs.soma.mechs.pas.g," \t e_pas=",cellParams.secs.soma.mechs.pas.e," \t vinit=", cellParams.secs.soma.vinit
+    print "gnabar_hh2=",cellParams.secs.soma.mechs.hh2.gnabar," \t ena=", cellParams.secs.soma.ions.na.e
+    print "gkbar_hh2=",cellParams.secs.soma.mechs.hh2.gkbar," \t ek=",cellParams.secs.soma.ions.k.e," \t vtraub_hh2=", cellParams.secs.soma.mechs.hh2.vtraub
+    
+    print " "
+    print "-------- IN Parameter values (end) --------"
+    print " "
+
+def printTCinfo(cellParams):
+    print " "
+    print "----- TC Parameter values -------"
+    print " "
+    
+    print "diam=",cellParams.secs.soma.geom.diam,"\t L=",cellParams.secs.soma.geom.L," \t Cm=",cellParams.secs.soma.geom.cm," \t Ra=",cellParams.secs.soma.geom.Ra
+    print "kl_gmax=",cellParams.secs.soma.pointps.kleak_0.gmax,"\t Erev_kleak="#,TC[index].Erev_kleak
+    print "g_pas=",cellParams.secs.soma.mechs.pas.g," \t e_pas=",cellParams.secs.soma.mechs.pas.e," \t vinit=", cellParams.secs.soma.vinit
+    print "gnabar_hh2=",cellParams.secs.soma.mechs.hh2.gnabar," \t ena=", cellParams.secs.soma.ions.na.e
+    print "gkbar_hh2=",cellParams.secs.soma.mechs.hh2.gkbar," \t ek=",cellParams.secs.soma.ions.k.e," \t vtraub_hh2=", cellParams.secs.soma.mechs.hh2.vtraub
+    print "gcabar_it=",cellParams.secs.soma.mechs.it.gcabar," \t eca=",cellParams.secs.soma.ions.ca.e," \t cai=", cellParams.secs.soma.ions.ca.i," \t cao=", cellParams.secs.soma.ions.ca.o
+    print "shift_it=",cellParams.secs.soma.mechs.it.shift," \t taubase_it=",cellParams.secs.soma.mechs.it.taubase
+    print "depth_cad=",cellParams.secs.soma.mechs.cad.depth," \t taur_cad=",cellParams.secs.soma.mechs.cad.taur," \t cainf_cad=", cellParams.secs.soma.mechs.cad.cainf," \t kt_cad=", cellParams.secs.soma.mechs.cad.kt
+    print "ghbar_iar=",cellParams.secs.soma.mechs.iar.ghbar," \t eh=",cellParams.secs.soma.ions.h.e," \t nca_iar=", cellParams.secs.soma.mechs.iar.nca," \t k2_iar=", cellParams.secs.soma.mechs.iar.k2
+    print "cac_iar=",cellParams.secs.soma.mechs.iar.cac," \t nexp_iar=",cellParams.secs.soma.mechs.iar.nexp," \t k4_iar=", cellParams.secs.soma.mechs.iar.k4," \t Pc_iar=", cellParams.secs.soma.mechs.iar.Pc," \t ginc_iar=", cellParams.secs.soma.mechs.iar.ginc
+
+    print " "
+    print "----- TC Parameter values (end) -------"
+    print " "
+
+
+def printREinfo(cellParams):
+    print " "
+    print "------ RE Parameter values ---------"
+    print " "
+    
+    print "diam=",cellParams.secs.soma.geom.diam,"\t L=",cellParams.secs.soma.geom.L," \t Cm=",cellParams.secs.soma.geom.cm," \t Ra=",cellParams.secs.soma.geom.Ra
+    print "g_pas=",cellParams.secs.soma.mechs.pas.g," \t e_pas=",cellParams.secs.soma.mechs.pas.e," \t vinit=", cellParams.secs.soma.vinit
+    print "gnabar_hh2=",cellParams.secs.soma.mechs.hh2.gnabar," \t ena=", cellParams.secs.soma.ions.na.e
+    print "gkbar_hh2=",cellParams.secs.soma.mechs.hh2.gkbar," \t ek=",cellParams.secs.soma.ions.k.e," \t vtraub_hh2=", cellParams.secs.soma.mechs.hh2.vtraub
+    print "gcabar_it2=",cellParams.secs.soma.mechs.it2.gcabar," \t eca=",cellParams.secs.soma.ions.ca.e," \t cai=", cellParams.secs.soma.ions.ca.i," \t cao=", cellParams.secs.soma.ions.ca.o
+    print "shift_it2=",cellParams.secs.soma.mechs.it2.shift," \t taubase_it2=",cellParams.secs.soma.mechs.it2.taubase," \t qm_it2=", cellParams.secs.soma.mechs.it2.qm," \t qh_it2=", cellParams.secs.soma.mechs.it2.qh
+    print "depth_cad=",cellParams.secs.soma.mechs.cad.depth," \t taur_cad=",cellParams.secs.soma.mechs.cad.taur," \t cainf_cad=", cellParams.secs.soma.mechs.cad.cainf," \t kt_cad=", cellParams.secs.soma.mechs.cad.kt
+    
+    print " "
+    print "-------- RE Parameter values (end) --------"
+    print " "
+
 ###############################################################################
 #
 # MPI HH TUTORIAL PARAMS
@@ -101,12 +190,12 @@ def createList(NPre, NPost, K, val):
 
 p=0*1.0; pCrx=p; pThl=p; pThlCrx=p # small-world-ness param
 #K=0.1 # connectivity param
+
 intraCrxProb=0.1
 PY_PY_AMPA_Prob=intraCrxProb;PY_IN_AMPA_Prob=intraCrxProb;
 PY_PY_NMDA_Prob=intraCrxProb;PY_IN_NMDA_Prob=intraCrxProb;
 IN_PY_GABAA_Prob=intraCrxProb;IN_PY_GABAB_Prob=intraCrxProb;
 
-gabaapercent=1*0.5*2
 
 intraThlProb=0.1
 TC_RE_AMPA_Prob=intraThlProb;RE_TC_GABAA_Prob=intraThlProb;
@@ -115,6 +204,32 @@ RE_TC_GABAB_Prob=intraThlProb;RE_RE_GABAA_Prob=intraThlProb;
 ThlCrxProb=0.2
 PY_TC_AMPA_Prob=ThlCrxProb;PY_RE_AMPA_Prob=ThlCrxProb;
 TC_PY_AMPA_Prob=ThlCrxProb;TC_IN_AMPA_Prob=ThlCrxProb;
+
+stimtime = 10050
+
+randInit = False
+selfConn = False
+
+gabaapercent=1*1
+
+PYPY    = 1*0
+PYIN    = 1*0
+INPYa   = 1*0
+INPYb   = 1*0
+
+TCRE    = 1*0
+RETCa   = 1*0
+RETCb   = 1*0
+RERE    = 1*0
+
+PYTC    = 1*0
+PYRE    = 1*0
+TCPY    = 1*0
+TCIN    = 1*0
+
+
+celsius = 36
+v_init = -70
 
 ###############################################################################
 # NETWORK PARAMETERS
@@ -155,7 +270,7 @@ cellRule['secs']['soma']['mechs']['hh2']={'gnabar': 0.05, 'gkbar': 0.005, 'vtrau
 cellRule['secs']['soma']['mechs']['pas']={'g': 1.0e-4, 'e': -70}
 cellRule['secs']['soma']['mechs']['im']={'gkbar': 7e-5}
 """
-cellRule['secs']['soma']['vinit']=-70
+cellRule['secs']['soma']['vinit']=v_init
 netParams.cellParams['PYrule'] = cellRule
 
 ### IN (single compartment)
@@ -164,7 +279,7 @@ cellRule = netParams.importCellParams(label='INrule', conds={'cellType': 'IN', '
 cellRule['secs']['soma']['mechs']['hh2']={'gnabar': 0.05, 'gkbar': 0.01, 'vtraub': -55.0}
 cellRule['secs']['soma']['mechs']['pas']={'g': 1.5e-4, 'e': -70}
 """
-cellRule['secs']['soma']['vinit']=-70
+cellRule['secs']['soma']['vinit']=v_init
 netParams.cellParams['INrule'] = cellRule
 
 ### TC (Destexhe et al., 1996; Bazhenov et al.,2002)
@@ -178,7 +293,7 @@ cellRule['secs']['soma']['mechs']['cad']={'taur': 5.0, 'depth': 1.0, 'kt': 0.0, 
 cellRule['secs']['soma']['ions']['ca']={'e': 120}
 cellRule['secs']['soma']['pointps']['kleak_0']['gmax']= 3e-5 # 0-0.03 mS/cm^2 for TC
 """
-cellRule['secs']['soma']['vinit']=-70
+cellRule['secs']['soma']['vinit']=v_init
 netParams.cellParams['TCrule'] = cellRule
 
 ### RE (Destexhe et al., 1996; Bazhenov et al.,2002)
@@ -198,7 +313,7 @@ cellRule['secs']['soma']['mechs']['itrecustom']['shift']=2
 cellRule['secs']['soma']['mechs']['itrecustom']['taubase']=85
 cellRule['secs']['soma']['mechs']['itrecustom']['gcabar']=0.003*0
 """
-cellRule['secs']['soma']['vinit']=-70
+cellRule['secs']['soma']['vinit']=v_init
 netParams.cellParams['RErule'] = cellRule
 
 
@@ -223,7 +338,9 @@ netParams.synMechParams['GABAA_S'] = {'mod': 'GABAa_S', 'Cmax': 0.5, 'Cdur': 0.3
 
 # GABAb_S
 #netParams.synMechParams['GABAB'] = {'mod': 'Exp2Syn', 'tau1': 0.07, 'tau2': 9.1, 'e': -80}  # GABAB
-netParams.synMechParams['GABAB_S'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
+netParams.synMechParams['GABAB_S1'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'n': 4, 'Erev': -95, 'gmax': INPYb*0.03/(N_PY*IN_PY_GABAB_Prob+1)} # }  # GABAB
+netParams.synMechParams['GABAB_S2'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.09, 'K2': 0.0012, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'n': 4, 'Erev': -95, 'gmax': RETCb*0.04/(N_TC*RE_TC_GABAB_Prob+1)} # }  # GABAB
+
 #netParams.synMechParams['GABAB_S'] = {'mod': 'GABAb_S', 'Cmax': 0.5, 'Cdur': 0.3, 'K1': 0.52, 'K2': 0.0045, 'K3': 0.18, 'K4': 0.034, 'KD': 100, 'Erev': -95} # }  # GABAB
 
 # gap
@@ -232,13 +349,13 @@ netParams.synMechParams['GAP'] = {'mod': 'GAP_S', 'r': 1.25e6}
 ###############################################################################
 # Stimulation parameters
 ###############################################################################
-netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 1, 'noise': 0.5}
+#netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 1, 'noise': 0.5}
 #netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'number': 10, 'noise': 0.1}
 
-netParams.stimTargetParams['bgCrx'] = {'source': 'bkg', 'conds': {'cellType': ['PY', 'IN']}, 
-                                            'weight': 0*2*0.5, 'delay': 'uniform(1,5)', 'synMech': 'AMPA_S'}  
-netParams.stimTargetParams['bgThl'] = {'source': 'bkg', 'conds': {'cellType': ['TC']}, 
-                                            'weight': 0*2*0.5, 'delay': 'uniform(1,5)', 'synMech': 'AMPA_S'}
+#netParams.stimTargetParams['bgCrx'] = {'source': 'bkg', 'conds': {'cellType': ['PY', 'IN']}, 
+#                                            'weight': 0*2*0.5, 'delay': 'uniform(1,5)', 'synMech': 'AMPA_S'}  
+#netParams.stimTargetParams['bgThl'] = {'source': 'bkg', 'conds': {'cellType': ['TC']}, 
+#                                            'weight': 0*2*0.5, 'delay': 'uniform(1,5)', 'synMech': 'AMPA_S'}
 #netParams.stimTargetParams['bg->sIN'] = {'source': 'bkg', 'conds': {'cellType': 'IN', 'cellModel': 'HH'}, 
 #                                            'weight': 1, 'delay': 'uniform(1,5)', 'synMech': 'AMPA_S'}  
 
@@ -246,7 +363,7 @@ netParams.stimTargetParams['bgThl'] = {'source': 'bkg', 'conds': {'cellType': ['
 #                                            'weight': 1, 'synMech': 'AMPA', 'sec': 'dend', 'loc': 1.0, 'delay': 'uniform(1,5)'}
 
 # IClamp PY
-netParams.stimSourceParams['Input_1'] = {'type': 'IClamp', 'del': 10050, 'dur': 100, 'amp': 0.7}
+netParams.stimSourceParams['Input_1'] = {'type': 'IClamp', 'del': stimtime, 'dur': 100, 'amp': 0.7*0}
 # smallPY=1
 netParams.stimTargetParams['Input_1->PY'] = {'source': 'Input_1', 'sec':'soma', 'loc': 0.5, 
                                               'conds': {'pop':'PY', 'cellList': [i*(N_PY/5-1)+11 for i in range((N_PY/20))]}}
@@ -254,13 +371,13 @@ netParams.stimTargetParams['Input_1->PY'] = {'source': 'Input_1', 'sec':'soma', 
 #netParams.stimTargetParams['Input_1->PY'] = {'source': 'Input_1', 'sec':'soma', 'loc': 0.5, 
 #                                              'conds': {'pop':'PY', 'cellList': [i*(N_PY/20)+2 for i in range((N_PY/5))]}}
 # IClamp RE
-netParams.stimSourceParams['Input_2'] = {'type': 'IClamp', 'del': 10050, 'dur': 100, 'amp': -0.1*0}
-netParams.stimTargetParams['Input_2->RE'] = {'source': 'Input_2', 'sec':'soma', 'loc': 0.5, 
-                                              'conds': {'pop':'RE', 'cellList': [i*(N_RE/20-1)+N_RE/10 for i in range((N_RE/5))]}}
+#netParams.stimSourceParams['Input_2'] = {'type': 'IClamp', 'del': 10050, 'dur': 100, 'amp': -0.1*0}
+#netParams.stimTargetParams['Input_2->RE'] = {'source': 'Input_2', 'sec':'soma', 'loc': 0.5, 
+#                                              'conds': {'pop':'RE', 'cellList': [i*(N_RE/20-1)+N_RE/10 for i in range((N_RE/5))]}}
 # IClamp TC
-netParams.stimSourceParams['Input_3'] = {'type': 'IClamp', 'del': 10050, 'dur': 100, 'amp': -0.1*0}
-netParams.stimTargetParams['Input_3->TC'] = {'source': 'Input_3', 'sec':'soma', 'loc': 0.5, 
-                                              'conds': {'pop':'TC', 'cellList': [i*(N_TC/20-1)+N_TC/10 for i in range((N_TC/5))]}}
+#netParams.stimSourceParams['Input_3'] = {'type': 'IClamp', 'del': 10050, 'dur': 100, 'amp': -0.1*0}
+#netParams.stimTargetParams['Input_3->TC'] = {'source': 'Input_3', 'sec':'soma', 'loc': 0.5, 
+#                                              'conds': {'pop':'TC', 'cellList': [i*(N_TC/20-1)+N_TC/10 for i in range((N_TC/5))]}}
 ###############################################################################
 # Connectivity parameters
 ###############################################################################
@@ -282,7 +399,7 @@ netParams.connParams['PY->PY_GAP'] = {
 netParams.connParams['PY->PY_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.6/(N_PY*PY_PY_AMPA_Prob+1),            # (Destexhe, 1998)
+    'weight': PYPY*0.6/(N_PY*PY_PY_AMPA_Prob+1),            # (Destexhe, 1998)
     #'weight': 0.6,            # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
@@ -290,12 +407,12 @@ netParams.connParams['PY->PY_AMPA'] = {
     'synMech': 'AMPA_S',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': PY_PY_AMPA_Prob}
-    'connList': smallWorldConn(N_PY,N_PY,pCrx,PY_PY_AMPA_Prob)}   
+    'connList': smallWorldConn(N_PY,N_PY,pCrx,PY_PY_AMPA_Prob,selfConn)}   
 
 netParams.connParams['PY->IN_AMPA'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0.2/(N_IN*PY_IN_AMPA_Prob+1),            # (Destexhe, 1998)       
+    'weight': PYIN*0.2/(N_IN*PY_IN_AMPA_Prob+1),            # (Destexhe, 1998)       
     #'weight': 0.2,            # (Destexhe, 1998)       
     'sec': 'soma',
     'delay': netParams.axondelay, 
@@ -332,7 +449,7 @@ netParams.connParams['PY->IN_NMDA'] = {
 netParams.connParams['IN->PY_GABAA'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': gabaapercent*0.15/(N_PY*IN_PY_GABAA_Prob+1),         # (Destexhe, 1998)
+    'weight': INPYa*gabaapercent*0.15/(N_PY*IN_PY_GABAA_Prob+1),         # (Destexhe, 1998)
     #'weight': gabaapercent*0.15,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
@@ -345,15 +462,15 @@ netParams.connParams['IN->PY_GABAA'] = {
 netParams.connParams['IN->PY_GABAB'] = {
     'preConds': {'popLabel': 'IN'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
+    'weight': INPYb*1, # 0.03/(N_PY*IN_PY_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.03,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB_S',
+    'synMech': 'GABAB_S1',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': IN_PY_GABAB_Prob}
-    'connList': smallWorldConn(N_IN,N_PY,pCrx,IN_PY_GABAB_Prob)}   
+    'connList': smallWorldConn(N_IN,N_PY,pCrx,IN_PY_GABAB_Prob)}
 
 
 ###################### intra thalamic projections #############################
@@ -362,7 +479,7 @@ netParams.connParams['IN->PY_GABAB'] = {
 netParams.connParams['TC->RE'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0.2/(N_RE*TC_RE_AMPA_Prob+1),         # (Destexhe, 1998)  
+    'weight': TCRE*0.2/(N_RE*TC_RE_AMPA_Prob+1),         # (Destexhe, 1998)  
     #'weight': 0.2,         # (Destexhe, 1998)  
     'sec': 'soma',
     'delay': netParams.axondelay, 
@@ -376,7 +493,7 @@ netParams.connParams['TC->RE'] = {
 netParams.connParams['RE->TC_GABAA'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.02/(N_TC*RE_TC_GABAA_Prob+1),         # (Destexhe, 1998)
+    'weight': RETCa*0.02/(N_TC*RE_TC_GABAA_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.02,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
@@ -389,12 +506,12 @@ netParams.connParams['RE->TC_GABAA'] = {
 netParams.connParams['RE->TC_GABAB'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0.04/(N_TC*RE_TC_GABAB_Prob+1),         # (Destexhe, 1998)
+    'weight': RETCb*1, # 0.04/(N_TC*RE_TC_GABAB_Prob+1),         # (Destexhe, 1998)
     #'weight': 0.04,         # (Destexhe, 1998)
     'sec': 'soma',
     'delay': netParams.axondelay, 
     'loc': 0.5,
-    'synMech': 'GABAB_S',
+    'synMech': 'GABAB_S2',
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': RE_TC_GABAB_Prob}
     'connList': smallWorldConn(N_RE,N_TC,pThl,RE_TC_GABAB_Prob)}
@@ -403,7 +520,7 @@ netParams.connParams['RE->TC_GABAB'] = {
 netParams.connParams['RE->RE'] = {
     'preConds': {'popLabel': 'RE'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0.2/(N_RE*RE_RE_GABAA_Prob+1),            # (Destexhe, 1998)
+    'weight': RERE*0.2/(N_RE*RE_RE_GABAA_Prob+1),            # (Destexhe, 1998)
     #'weight': 0.2,            # (Destexhe, 1998)
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -413,7 +530,7 @@ netParams.connParams['RE->RE'] = {
     #'synsPerConn': 1,
     #'probability': '1.0 if dist_x <= narrowdiam*xspacing else 0.0'}   
     #'probability': RE_RE_GABAA_Prob}
-    'connList': smallWorldConn(N_RE,N_RE,pThl,RE_RE_GABAA_Prob)}   
+    'connList': smallWorldConn(N_RE,N_RE,pThl,RE_RE_GABAA_Prob,selfConn)}   
 
 ################# thalamo-cortical projections ################################
 
@@ -421,7 +538,7 @@ netParams.connParams['RE->RE'] = {
 netParams.connParams['PY->TC'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'TC'},
-    'weight': 0*0.01/(N_TC*PY_TC_AMPA_Prob+1),           # (Destexhe, 1998)    
+    'weight': PYTC*0.01/(N_TC*PY_TC_AMPA_Prob+1),           # (Destexhe, 1998)    
     #'weight': 0.01,           # (Destexhe, 1998)    
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -433,7 +550,7 @@ netParams.connParams['PY->TC'] = {
 netParams.connParams['PY->RE'] = {
     'preConds': {'popLabel': 'PY'}, 
     'postConds': {'popLabel': 'RE'},
-    'weight': 0*1.2/(N_RE*PY_RE_AMPA_Prob+1),           # (Destexhe, 1998)  
+    'weight': PYRE*1.2/(N_RE*PY_RE_AMPA_Prob+1),           # (Destexhe, 1998)  
     #'weight': 1.2,           # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -445,7 +562,7 @@ netParams.connParams['PY->RE'] = {
 netParams.connParams['TC->PY'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'PY'},
-    'weight': 1.2/(N_PY*TC_PY_AMPA_Prob+1),        # (Destexhe, 1998)   
+    'weight': TCPY*1.2/(N_PY*TC_PY_AMPA_Prob+1),        # (Destexhe, 1998)   
     #'weight': 1.2,        # (Destexhe, 1998)   
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -457,7 +574,7 @@ netParams.connParams['TC->PY'] = {
 netParams.connParams['TC->IN'] = {
     'preConds': {'popLabel': 'TC'}, 
     'postConds': {'popLabel': 'IN'},
-    'weight': 0.4/(N_IN*TC_IN_AMPA_Prob+1),        # (Destexhe, 1998)  
+    'weight': TCIN*0.4/(N_IN*TC_IN_AMPA_Prob+1),        # (Destexhe, 1998)  
     #'weight': 0.4,        # (Destexhe, 1998)  
     'delay': netParams.axondelay, 
     'loc': 0.5,
@@ -549,6 +666,8 @@ plt.ylabel('IN')
 
 """
 
+
+
 ###############################################################################
 # SIMULATION PARAMETERS
 ###############################################################################
@@ -558,32 +677,38 @@ plt.ylabel('IN')
 #------------------------------------------------------------------------------
 
 # Simulation parameters
-simConfig.checkErrors=True
+simConfig.checkErrors=False # True
 simConfig.trans = 10000
 simConfig.Dt = 0.1
 simConfig.steps_per_ms = 1/simConfig.Dt
 simConfig.npoints = 30000
 
-simConfig.duration = 3*1000 # simConfig.trans + simConfig.npoints * simConfig.Dt # Duration of the simulation, in ms
+simConfig.duration = 3*1000+10000*0 # simConfig.trans + simConfig.npoints * simConfig.Dt # Duration of the simulation, in ms
 simConfig.dt = 0.1 # Internal integration timestep to use
-simConfig.hParams['celsius'] = 36
-simConfig.hParams['v_init'] = -70
-simConfig.seeds = {'conn': 1, 'stim': 1, 'loc': 1} # Seeds for randomizers (connectivity, input stimulation and cell locations)
-simConfig.verbose = True  # show detailed messages 
+simConfig.hParams['celsius'] = celsius
+simConfig.hParams['v_init'] = v_init
+#simConfig.seeds = {'conn': 1, 'stim': 1, 'loc': 1} # Seeds for randomizers (connectivity, input stimulation and cell locations)
+simConfig.verbose = False # True  # show detailed messages 
 
 # Recording 
 simConfig.recordCells = []  # which cells to record from
+"""
 simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'},
                           #'i_AMPA': {'sec':'soma', 'loc':0.5, 'synMech': 'AMPA_S', 'var': 'i', 'conds': {'pop': ['RE', 'TC', 'IN', 'PY']}},
                           #'g_AMPA': {'sec':'soma', 'loc':0.5, 'synMech': 'AMPA_S', 'var': 'g', 'conds': {'pop': ['RE', 'TC', 'IN', 'PY']}},
                           'i_GABAA': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAA_S', 'var': 'i', 'conds': {'pop': ['TC', 'PY', 'RE']}},
                           'g_GABAA': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAA_S', 'var': 'g', 'conds': {'pop': ['TC', 'PY', 'RE']}},
-                          'i_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S', 'var': 'i'},
-                          'g_GABAB': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S', 'var': 'g'}
+                          'i_GABAB1': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S1', 'var': 'i'},
+                          'g_GABAB1': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S1', 'var': 'g'},
+                          'i_GABAB2': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S2', 'var': 'i'},
+                          'g_GABAB2': {'sec':'soma', 'loc':0.5, 'synMech': 'GABAB_S2', 'var': 'g'}
                           }
+"""
+simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'}}
 
 simConfig.recordStim = True  # record spikes of cell stims
 simConfig.recordStep = 0.1 # Step size in ms to save data (eg. V traces, LFP, etc)
+#simConfig.cvode_active = True
 
 # Saving
 simConfig.simLabel = "knox"
@@ -600,7 +725,7 @@ simConfig.saveFileStep = 1000 # step size in ms to save data to disk
 simConfig.analysis['plotRaster'] = {'include': ['RE', 'TC', 'IN', 'PY'], 'orderInverse': False} #True # Whether or not to plot a raster
 
 #simConfig.analysis['plotRaster'] = True  # Plot raster
-simConfig.analysis['plotTraces'] = {'include': [('PY',[50]),('IN',[50]),('TC',[50]),('RE',[50])]} # plot recorded traces for this list of cells
+simConfig.analysis['plotTraces'] = {'include': [('PY',[0]),('IN',[0]),('TC',[0]),('RE',[0])]} # plot recorded traces for this list of cells
 
 #simConfig.analysis['plotRatePSD'] = {'include': ['PY', 'IN', 'TC', 'RE'], 'Fs': 50, 'smooth': 10} # plot recorded traces for this list of cells
 
@@ -615,15 +740,71 @@ simConfig.stimtime = 10050
 simConfig.randomstim = 0
 
 simConfig.field = 0
-simConfig.fieldg = 0
-simConfig.ampafield = 0
-simConfig.gabaafield = 0
-simConfig.gababfield = 0
-simConfig.gababTCfield = 0
 
 simConfig.runStopAt = simConfig.duration
 
-sim.createSimulateAnalyze(netParams = netParams, simConfig = simConfig)
+
+###############################################################################
+# create, simulate, and analyse network
+###############################################################################
+(pops, cells, conns, stims, simData) = sim.create(netParams, simConfig, output=True)
+
+if (randInit):
+    rgh = sim.h.Random()
+    rk1 = sim.h.Random()
+    rgh.normal(17.5,0.0008)        #random number generator behaves weirdly for very small numbers, so multiply by 10^-6 below
+    rk1.normal(40,0.003)
+    
+    for i in range(N_TC):
+        sim.net.cells[200+i].secs.soma.mechs.iar.ghbar = rgh.repick() * 1e-6
+        sim.net.cells[200+i].secs.soma.pointps.kleak_0.gmax = rk1.repick() * 1e-4
+        print "TC(",i,") gh:", sim.net.cells[200+i].secs.soma.mechs.iar.ghbar, " gmax:", sim.net.cells[200+i].secs.soma.pointps.kleak_0.gmax
+
+
+#sim.h.cvode.re_init()
+#sim.h.frecord_init()
+
+##### sim.simulate() ################
+##### sim.runSim()   ################
+###############################################################################
+### Run Simulation
+###############################################################################
+sim.pc.barrier()
+sim.timing('start', 'runTime')
+sim.preRun()
+#sim.h.init()
+
+sim.pc.set_maxstep(10)
+sim.h.stdinit()
+sim.h.dt = 0.1 # Fixed dt
+sim.h.fcurrent()
+sim.h.cvode.re_init()
+sim.h.frecord_init()
+
+printPYinfo(sim.net.cells[0])
+printINinfo(sim.net.cells[100])
+printTCinfo(sim.net.cells[200])
+printREinfo(sim.net.cells[300])
+printWeight()
+
+
+if sim.rank == 0: print('\nRunning simulation for %s ms...'%sim.cfg.duration)
+sim.pc.psolve(sim.cfg.duration)
+
+sim.pc.barrier() # Wait for all hosts to get to this point
+sim.timing('stop', 'runTime')
+if sim.rank==0:
+    print('  Done; run time = %0.2f s; real-time ratio: %0.2f.' %
+        (sim.timingData['runTime'], sim.cfg.duration/1000/sim.timingData['runTime']))
+########################################
+sim.gatherData()                  # gather spiking data and cell info from each node
+#####################################
+sim.analyze()
+
+
+
+#sim.createSimulateAnalyze(netParams = netParams, simConfig = simConfig)
+
 
 """
 for nc in sim.h.List("NetCon"):

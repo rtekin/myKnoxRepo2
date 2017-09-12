@@ -28,43 +28,43 @@ def assign_synapses(gRERE_GABAA,gRETC_GABAA,gRETC_GABAB,gTCRE_AMPA,gPYPY_AMPA,gP
 
     print "nRERE:", nRERE, "nRETCa:", nRETCa, "nRETCb:", nRETCb, "nTCRE:", nTCRE, "nPYPY:", nPYPY, "nINPYa:", nINPYa, "nINPYb:", nINPYb, "nPYRE:", nPYRE, "nPYTC:", nPYTC, "nTCPY:", nTCPY, "nTCIN:", nTCIN
     for i in range(nthalamiccells):
-        for j in range(nRERE):
+        for j in range(int(RE[i].REgabaalist.count())):
             RE[i].REgabaalist[j].weight[0] = gRERE_GABAA / nRERE               
     
-        for j in range(nRETCa):
+        for j in range(int(TC[i].REgabaalist.count())):
             TC[i].REgabaalist[j].weight[0] = gRETC_GABAA / nRETCa
     
-        for j in range(nRETCb):
+        for j in range(int(TC[i].gababpost.count())):
             TC[i].gababpost.object(j).gmax = gRETC_GABAB / nRETCb
             #TC[i].REgabablist[j].weight[0] = gRETC_GABAB / nRETCb
         
-        for j in range(nTCRE):
+        for j in range(int(RE[i].TClist.count())):
             RE[i].TClist[j].weight[0] = gTCRE_AMPA / nTCRE
         
-        for j in range(nPYRE):   		
+        for j in range(int(RE[i].PYlist.count())):  		
             RE[i].PYlist[j].weight[0] = gPYRE_AMPA / nPYRE
         
-        for j in range(nPYTC):
+        for j in range(int(TC[i].PYlist.count())):  
             TC[i].PYlist[j].weight[0] = gPYTC_AMPA / nPYTC
         
     for i in range(ncorticalcells):
-        for j in range(nPYPY):
+        for j in range(int(PY[i].PYlist.count())):
             PY[i].PYlist[j].weight[0] = gPYPY_AMPA / nPYPY
         
-        for j in range(nPYIN):
+        for j in range(int(IN[i].PYlist.count())):
             IN[i].PYlist[j].weight[0] = gPYIN_AMPA / nPYIN
         
-        for j in range(nINPYa):
+        for j in range(int(PY[i].INgabaalist.count())):
             PY[i].INgabaalist[j].weight[0] = gINPY_GABAA / nINPYa
         
-        for j in range(nINPYb):
+        for j in range(int(PY[i].INgabablist.count())):
             PY[i].gababpost[j].gmax = gINPY_GABAB / nINPYb
             #PY[i].INgabablist[j].weight[0] = gINPY_GABAB / nINPYb
         
-        for j in range(nTCPY):
+        for j in range(int(PY[i].TClist.count())):
             PY[i].TClist[j].weight[0]  = gTCPY_AMPA / nTCPY
         
-        for j in range(nTCIN):
+        for j in range(int(IN[i].TClist.count())):
             IN[i].TClist[j].weight[0] = gTCIN_AMPA / nTCIN
 
 
@@ -183,7 +183,7 @@ def xfield(Re, x, Ni):
     #print "t=", h.t, "total_field = ", total_field * Re/4./np.pi
     return total_field * Re/4./np.pi
 
-    
+
 ncorticalcells = 100
 nthalamiccells = 100
 narrowdiam = 5
@@ -203,8 +203,26 @@ stimtime = 10050
 gabaapercent = 1
 gababpercent = 1
 
+randInit = False
+selfConn = False
+
+PYPY    = 1*0
+PYIN    = 1*0
+INPYa   = 1*0
+INPYb   = 1*0
+
+TCRE    = 1*0
+RETCa   = 1*0
+RETCb   = 1*0
+RERE    = 1*0
+
+PYTC    = 1*0
+PYRE    = 1*0
+TCPY    = 1*0
+TCIN    = 1*0
+
 celsius = 36
-v_init = -70	
+v_init = -70
 
 randvolt = h.Random()
 randvolt.uniform(-80,-65)
@@ -283,21 +301,22 @@ for i in range(ncorticalcells):
         jbound = j
         if jbound < 0: jbound = abs(j) - 1
         if jbound > ncorticalcells-1: jbound = 2 * ncorticalcells - jbound - 1 
-        src = PY[i]
-        tgt = PY[jbound]
-        syn = tgt.ampapostPY #h.AMPA_S(tgt.soma(0.5))
-        syn.Alpha = 0.94
-        syn.Beta = 0.18
-        syn.Cmax = 0.5
-        syn.Cdur = 0.3
-        syn.Erev = 0
-        nc = h.NetCon(src.soma(0.5)._ref_v, syn, 0, axondelay, 1, sec=src.soma)
-        #nc.weight[i] = 1
-        #nc.delay = axondelay
-        #nc.threshold = 0
-        #nc.record(PYtimevec, PYidvec, i)
-        tgt.PYlist.append(nc)
-        #print "[%d,%d], "%(i,jbound)
+        if i!=jbound or selfConn: 
+            src = PY[i]
+            tgt = PY[jbound]
+            syn = tgt.ampapostPY #h.AMPA_S(tgt.soma(0.5))
+            syn.Alpha = 0.94
+            syn.Beta = 0.18
+            syn.Cmax = 0.5
+            syn.Cdur = 0.3
+            syn.Erev = 0
+            nc = h.NetCon(src.soma(0.5)._ref_v, syn, 0, axondelay, 1, sec=src.soma)
+            #nc.weight[i] = 1
+            #nc.delay = axondelay
+            #nc.threshold = 0
+            #nc.record(PYtimevec, PYidvec, i)
+            tgt.PYlist.append(nc)
+            #print "[%d,%d], "%(i,jbound)
 
 print " "
 print "<< ",int(PY[0].PYlist.count())," AMPA-MEDIATED SYNAPTIC CONTACTS FROM PY TO PY >>"
@@ -466,17 +485,18 @@ for i in range(nthalamiccells):
         jbound = j
         if jbound < 0: jbound = abs(j) - 1
         if jbound > ncorticalcells-1: jbound = 2 * ncorticalcells - jbound - 1 
-        src = RE[i]
-        tgt = RE[jbound]
-        syn = tgt.gabaapost 
-        syn.Alpha = 20		# from diffusion model
-        syn.Beta = 0.162
-        syn.Cmax = 0.5		# short pulses
-        syn.Cdur = 0.3
-        syn.Erev = -85		# Rinzel's Erev
-        nc = h.NetCon(src.soma(0.5)._ref_v, syn, 0, axondelay, 1, sec=src.soma)
-        tgt.REgabaalist.append(nc)
-        #print "[%d,%d], "%(i,jbound)
+        if i!=jbound or selfConn:
+            src = RE[i]
+            tgt = RE[jbound]
+            syn = tgt.gabaapost 
+            syn.Alpha = 20		# from diffusion model
+            syn.Beta = 0.162
+            syn.Cmax = 0.5		# short pulses
+            syn.Cdur = 0.3
+            syn.Erev = -85		# Rinzel's Erev
+            nc = h.NetCon(src.soma(0.5)._ref_v, syn, 0, axondelay, 1, sec=src.soma)
+            tgt.REgabaalist.append(nc)
+            #print "[%d,%d], "%(i,jbound)
 	
 print " "
 print "<< ",int(RE[0].REgabaalist.count())," GABAa-MEDIATED SYNAPTIC CONTACTS FROM RE TO RE >>"
@@ -706,17 +726,17 @@ print " "
 #---------------------------------------------------------------------------
 #   Assign potassium leak and Ih current strengths in TC cells 
 #---------------------------------------------------------------------------
-
-rgh = h.Random()
-rk1 = h.Random()
-rgh.normal(17.5,0.0008)        #random number generator behaves weirdly for very small numbers, so multiply by 10^-6 below
-rk1.normal(40,0.003)
-
-# setup TC cells in resting mode (no spontaneous oscillation)
-for i in range(nthalamiccells):
-    TC[i].soma.ghbar_iar = rgh.repick() * 1e-6   
-    TC[i].kl.gmax = rk1.repick() * 1e-4         
-    print "TC(",i,") gh:",TC[i].soma.ghbar_iar," gmax:",TC[i].kl.gmax
+if (randInit):
+    rgh = h.Random()
+    rk1 = h.Random()
+    rgh.normal(17.5,0.0008)        #random number generator behaves weirdly for very small numbers, so multiply by 10^-6 below
+    rk1.normal(40,0.003)
+    
+    # setup TC cells in resting mode (no spontaneous oscillation)
+    for i in range(nthalamiccells):
+        TC[i].soma.ghbar_iar = rgh.repick() * 1e-6   
+        TC[i].kl.gmax = rk1.repick() * 1e-4
+        print "TC(",i,") gh:",TC[i].soma.ghbar_iar," gmax:",TC[i].kl.gmax
 
 #----------------------------------------------------------------------------
 #  set up current stimulus to cells
@@ -729,10 +749,12 @@ if smallPY==1:
     #for i in range(ncorticalcells/20):
         #stim = h.IClamp(PY[i*(ncorticalcells/5)+9].soma(0.5))
     for i in range(ncorticalcells/20):
-        stim = h.IClamp(0.5, sec=PY[(i*(ncorticalcells/5-1)+11)*0+i].soma)
+        print "PY(",(i*(ncorticalcells/5-1)+11),") current clamp"
+        #stim = h.IClamp(0.5, sec=PY[i*(ncorticalcells/5-1)+11].soma)
+        stim = h.IClamp(PY[i*(ncorticalcells/5-1)+11].soma(0.5))
         stim.delay = stimtime
         stim.dur = 100
-        stim.amp = 0.7
+        stim.amp = 0.7*0
         PYstim.append(stim)
 
 """    
@@ -813,23 +835,23 @@ GABAb0_G_vec = h.Vector()
 GABAb0_G_vec.record(gababpost._ref_G)
 
 #h.tstop = 1000
-tstop = 3000
+tstop = 3000+10000*0
 
 
 # run the simulation
 
-gRERE_GABAA = 0.2
-gRETC_GABAA = 0.02
-gRETC_GABAB = 0.04
-gTCRE_AMPA = 0.2
-gPYPY_AMPA = 0.6
-gPYIN_AMPA = 0.2
-gINPY_GABAA = gabaapercent*0.15
-gINPY_GABAB = gababpercent*0.03
-gPYRE_AMPA = 1.2
-gPYTC_AMPA = 0.01
-gTCPY_AMPA = 1.2
-gTCIN_AMPA = 0.4
+gRERE_GABAA     = RERE*0.2
+gRETC_GABAA     = RETCa*0.02
+gRETC_GABAB     = RETCb*0.04
+gTCRE_AMPA      = TCRE*0.2
+gPYPY_AMPA      = PYPY*0.6
+gPYIN_AMPA      = PYIN*0.2
+gINPY_GABAA     = INPYa*gabaapercent*0.15
+gINPY_GABAB     = INPYb*gababpercent*0.03
+gPYRE_AMPA      = PYRE*1.2
+gPYTC_AMPA      = PYTC*0.01
+gTCPY_AMPA      = TCPY*1.2
+gTCIN_AMPA      = TCIN*0.4
 
 
 def go():
@@ -837,20 +859,22 @@ def go():
     h.celsius=celsius
     h.finitialize(v_init)
     #neuron.init()
-    printPYinfo(0)
-    printINinfo(0)
-    printTCinfo(0)
-    printREinfo(0)
-    
-    # params:       RERE,   RETCa,   ***RETCb,   TCRE,   PYPY,   PYIN,   INPYa,              ***INPYb,            **PYRE,   PYTC,   TCPY,   TCIN
-    assign_synapses(0.2,    0.02,    0*0.04,       0.2,    0.6,    0.2,     gabaapercent*0.15,  0*gababpercent*0.03,    1.2,    0.01,   1.2,    0.4)
-    #assign_synapses(gRERE_GABAA, gRETC_GABAA, gRETC_GABAB, gTCRE_AMPA, gPYPY_AMPA, gPYIN_AMPA, gINPY_GABAA, gINPY_GABAB, gPYRE_AMPA, gPYTC_AMPA, gTCPY_AMPA, gTCIN_AMPA)
 
-    printWeight(0)
+    
+    # params:        RERE,        RETCa,        ***RETCb,     TCRE,        PYPY,       PYIN,       INPYa,                     ***INPYb,                  PYRE,        PYTC,        TCPY,        TCIN
+    assign_synapses( RERE*0.2,    RETCa*0.02,   RETCb*0.04,   TCRE*0.2,    PYPY*0.6,   PYIN*0.2,   INPYa*gabaapercent*0.15,   INPYb*gababpercent*0.03,   PYRE*1.2,    PYTC*0.01,   TCPY*1.2,    TCIN*0.4)
+    #assign_synapses(gRERE_GABAA, gRETC_GABAA,  gRETC_GABAB,  gTCRE_AMPA,  gPYPY_AMPA, gPYIN_AMPA, gINPY_GABAA,               gINPY_GABAB,               gPYRE_AMPA,  gPYTC_AMPA,  gTCPY_AMPA,  gTCIN_AMPA)
+
     
     h.fcurrent()
     h.cvode.re_init()
     h.frecord_init()
+    
+    printPYinfo(0)
+    printINinfo(0)
+    printTCinfo(0)
+    printREinfo(0)
+    printWeight(0)
     
     field.append(0)
     while h.t<tstop:
@@ -882,7 +906,7 @@ h.run()
 #------------------------------------------
 # figures
 #------------------------------------------
-
+"""
 # synaptic  param plot
 fig = pyplot.figure(figsize=(8,4))
 ax1 = fig.add_subplot(6,1,1)
@@ -968,7 +992,7 @@ G1 = ax7.plot(t_vec, GABAb0_G_vec, color='black')
 ax7.legend(G1, ['TC[0] GABAB_G'])
 ax7.set_ylabel('#')
 ax7.set_xlabel('time (ms)')
-
+"""
 
 """
 ax2 = fig.add_subplot(2,1,2)

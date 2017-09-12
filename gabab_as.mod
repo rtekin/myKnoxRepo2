@@ -103,11 +103,13 @@ ENDCOMMENT
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
 
 NEURON {
-	POINT_PROCESS GABAb_S
+	POINT_PROCESS GABAb_S_as
 	RANGE R, G, Gn, g, gmax, synon, Ron, Roff
 	NONSPECIFIC_CURRENT i
-	GLOBAL Cmax, Cdur
-	GLOBAL K1, K2, K3, K4, KD, Erev
+	:GLOBAL Cmax, Cdur
+	:GLOBAL K1, K2, K3, K4, KD, Erev
+	RANGE Cmax, Cdur
+	RANGE K1, K2, K3, K4, n, KD, Erev	
 }
 UNITS {
 	(nA) = (nanoamp)
@@ -167,6 +169,7 @@ BREAKPOINT {
 	SOLVE bindkin METHOD cnexp
 	Gn = G*G*G*G : ^n = 4
 	g = gmax * Gn / (Gn+KD)
+	:g = Gn / (Gn+KD)
 	i = g*(v - Erev)
 }
 
@@ -183,13 +186,16 @@ DERIVATIVE bindkin {
 : Note: automatic initialization of all reference args to 0 except first
 
 NET_RECEIVE(weight (umho),  r0, t0 (ms)) {
-	if (flag == 1) { : at end of Cdur pulse so turn off
+	if (flag == 1) { 
+	: at end of Cdur pulse so turn off
 		r0 = weight*(Rinf + (r0 - Rinf)*exp(-(t - t0)/Rtau))
 		t0 = t
 		synon = synon - weight
 		state_discontinuity(Ron, Ron - r0)
 		state_discontinuity(Roff, Roff + r0)
-        }else{ : at beginning of Cdur pulse so turn on
+        }
+	else{ 
+	: at beginning of Cdur pulse so turn on
 		r0 = weight*r0*exp(-Beta*(t - t0))
 		t0 = t
 		synon = synon + weight

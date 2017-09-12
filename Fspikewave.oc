@@ -4,8 +4,6 @@ Implementation of:
 Destexhe, Alain, "Spike-and-Wave Oscillations Based on the Properties of GABAB Receptors"
 The Journal of Neuroscience, November 1, 1998, 18(21):9099–9111
 
-Created by modifying the file file Fspin.oc in Thalamocortical and Thalamic Reticular Network (Destexhe et al 1996, ModelDB Acession:3343) to create the four layer network described in the paper listed above, with various other functions added.
-
 Andrew Knox 2014
 
 
@@ -16,10 +14,10 @@ nthalamiccells = 100
 narrowdiam = 5
 widediam = 10
 
-trans = 00000
+trans = 10000*0
 Dt = 0.1
 dt = 0.1			// must be submultiple of Dt
-npoints = 30000
+npoints = 30000+100000*1
 stimtime = 10050			
 randomstim = 0
 
@@ -38,7 +36,7 @@ smallPYhole = 0
 mediumPYoffset = 7
 largePYoffset = 2
 
-gabaapercent = 1
+gabaapercent = 1*0.5
 gababpercent = 1
 
 //----------------------------------------------------------------------------
@@ -47,9 +45,11 @@ gababpercent = 1
 
 load_file("nrngui.hoc")
 
-objectvar g[20]			// max 20 graphs
+
+objectvar g[100]			// max 20 graphs
 objectvar g1, g2, g3, g4
 ngraph = 0
+
 
 proc addgraph() { local ii	// define subroutine to add a new graph
 				// addgraph("variable", minvalue, maxvalue)
@@ -57,6 +57,7 @@ proc addgraph() { local ii	// define subroutine to add a new graph
 	ii = ngraph-1
 	g[ii] = new Graph(0)
 	g[ii].view(0,1,0,1, int(ii/2)*550+80, ii%2*450+100, 400, 300)
+//	g[ii].view(0,1,0,1, int(ii/2)*350+50, ii%2*260+80, 300, 200)
 	g[ii].size(tstart,tstop,$2,$3)
 	g[ii].xaxis()
 	g[ii].yaxis()
@@ -104,10 +105,32 @@ if(ismenu==0) {
   ismenu=1
 }
 
+objectvar synfile
+synfile = new File()
+//synfile.wopen(" C:\\Users\\aknox\\Desktop\\synapses.txt")
+////synfile.wopen("/cygdrive/c/Users/aknox/Desktop/synapses.txt")
 
 objref membranedatafile
 membranedatafile = new File()
 
+
+//----------------------------------------------------------------------------
+// initialize stimulus variables
+//----------------------------------------------------------------------------
+
+/*
+nstimsynapses = 100
+timefirststimulus = 20000
+nstimuli = 1
+nhfburst = 6
+timestimuli = 500
+timehfburst = 3		//2.5
+
+
+objectvar ampavec[nstimsynapses]
+objectvar ampatimevec[nstimsynapses]
+double Vampa[nstimsynapses]
+*/
 
 
 //----------------------------------------------------------------------------
@@ -134,6 +157,11 @@ recncs = new List()
 recveclist = new List()
 
 field = 0
+fieldg = 0
+ampafield = 0
+gabaafield = 0
+gababfield = 0
+gababTCfield = 0
 
 //----------------------------------------------------------------------------
 //  setup simulation parameters
@@ -148,46 +176,72 @@ tstop = trans + npoints * Dt
 runStopAt = tstop
 steps_per_ms = 1/Dt
 celsius = 36
-v_init = -70	
+v_init = -70			//originally 70
 
+/*
 objectvar randvolt
 randvolt = new Random()
 randvolt.uniform(-80,-65)
-
+*/
 
 objref lstate 
 objref statefile
 
 proc init () {
-	finitialize(v_init)
-	printPYinfo(0)
-	printINinfo(0)
-	printTCinfo(0)
-	printREinfo(0)  
+  finitialize(v_init)
 
+//Doesn't really change anything if you let model come to steady state
+//  for i=0,ncorticalcells-1 {
+//    PY[i].soma.v(0.5) = randvolt.repick()
+//    IN[i].soma.v(0.5) = randvolt.repick()
+//  }
+//  for i=0,nthalamiccells-1 {
+//    TC[i].soma.v(0.5) = randvolt.repick()
+//    RE[i].soma.v(0.5) = randvolt.repick()
+//  }
+
+/*
   if (trans > 0)  {
-    print "Setting trans to a non-zero value implies there is a state file to be loaded\n"
     lstate = new SaveState()
     statefile = new File()
     statefile.ropen("state_data.txt")
     lstate.fread(statefile)
     lstate.restore()
   }
-
-  // params:      RERE,  RETCa,  ***RETCb,  TCRE,   PYPY,     PYIN,     INPYa,                ***INPYb,          **PYRE,   PYTC,    TCPY,   TCIN
-  assign_synapses(0.2,   0.02,   0*0.04,   0.2,    0.6,      0.2    ,   gabaapercent*0.15,    0*gababpercent*0.03,     1.2,    0.01,    1.2,    0.4)		// 0% IN->PY A weight
+*/
+  // params: RERE, RETCa,RETCb,TCRE, PYPY, PYIN, INPYa, INPYb, PYRE, PYTC, TCPY, TCIN
+  //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.15,0.03,1.2,0.01,1.2,0.4)		// synaptic weights J neurophys
+  //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.1125,0.03,1.2,0.01,1.2,0.4)		// 75% IN->PY weight (0.1125)
+  //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.075,0.03,1.2,0.01,1.2,0.4)		// 50% IN->PY weight (0.075)
+  //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.06,0.03,1.2,0.01,1.2,0.4)		// 40% IN->PY weight (0.06)
+  //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.0375,0.03,1.2,0.01,1.2,0.4)		// 25% IN->PY weight (0.0375)
+  //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.015,0.03,1.2,0.01,1.2,0.4)		// 10% IN->PY weight (0.015)
+  //assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,0.0,0.03,1.2,0.01,1.2,0.4)		// 0% IN->PY A weight
+  assign_synapses(0.2,0.02,0.04,0.2,0.6,0.2,gabaapercent*0.15,gababpercent*0.03,1.2,0.01,1.2,0.4)		// 0% IN->PY A weight
   
+  
+  //assign_synapses(0.12,0.02,0.04,0.2,0.6,0.2,0,0.03,1.2,0.01,1.2,0.4)		// 0% IN->PY A weight, better RERE for new synapses
+  //assign_synapses(0,0,0.04,0.2,0.6,0.2,0.15,0.03,1.2,0.01,1.2,0.4)		// 0% RERE and RETC
+  //assign_focal_gabaa_synapses(0,0,45,55)
 
   fcurrent()
   cvode.re_init()
+
+//  finitialize()
+//  if (cvode.active()) {
+//    cvode.re_init()
+//  } else {
+//    fcurrent()
+//  }
   frecord_init()
+
 }
 
 
 
 
 //----------------------------------------------------------------------------
-//  Create Cells
+//  create TC cells
 //----------------------------------------------------------------------------
 
 print " "
@@ -197,23 +251,57 @@ print "<<==================================>>"
 print " "
 
 load_file("TC.tem")		// read geometry file
+
 for i=0,nthalamiccells-1 {
   TC[i] = new sTC()
+//  TCVtrace[i] = new Vector()
+//  TCVtrace[i].record(&TC[i].soma.v(0.5))
 }
+
+
+
+
+//----------------------------------------------------------------------------
+//  create RE cells
+//----------------------------------------------------------------------------
 
 load_file("RE.tem")		// read geometry file
+
+
 for i=0,nthalamiccells-1 {
   RE[i] = new sRE()
+//  REVtrace[i] = new Vector()
+//  REVtrace[i].record(&RE[i].soma.v(0.5))
 }
+
+
+
+
+//----------------------------------------------------------------------------
+//  create PY cells
+//----------------------------------------------------------------------------
 
 load_file("sPY.tem")		// read geometry file
+
 for i=0,ncorticalcells-1 {
   PY[i] = new sPY()
+//  PYVtrace[i] = new Vector()
+//  PYVtrace[i].record(&PY[i].soma.v(0.5))
 }
 
+
+
+//----------------------------------------------------------------------------
+//  create IN cells
+//----------------------------------------------------------------------------
+
 load_file("sIN.tem")		// read geometry file
+
+
 for i=0,ncorticalcells-1 {
   IN[i] = new sIN()
+//  INVtrace[i] = new Vector()
+//  INVtrace[i].record(&IN[i].soma.v(0.5))
 }
 
 
@@ -258,10 +346,35 @@ for i=0,nthalamiccells-1 {
 
 }
 
+/*
+for i=0,ncorticalcells-1 {
+    PY[i].soma tobj = new NetCon(&v(0.5), nil)
+    tobj.record(PYtimevec, PYidvec, i+1) // so all the spike rasters lie above the x axis
+    recncs.append(tobj)
+}
+ 
+for i=0,ncorticalcells-1 {
+    IN[i].soma tobj = new NetCon(&v(0.5), nil)
+    tobj.record(INtimevec, INidvec, i+1) // so all the spike rasters lie above the x axis
+    recncs.append(tobj)
+}
+
+for i=0,nthalamiccells-1 {
+    RE[i].soma tobj = new NetCon(&v(0.5), nil)
+    tobj.record(REtimevec, REidvec, i+1) // so all the spike rasters lie above the x axis
+    recncs.append(tobj)
+}
+
+for i=0,nthalamiccells-1 { 
+    TC[i].soma tobj = new NetCon(&v(0.5), nil)
+    tobj.record(TCtimevec, TCidvec, i+1) // so all the spike rasters lie above the x axis
+    recncs.append(tobj)
+}
+*/
 
 
 //----------------------------------------------------------------------------
-//   Set Up Synapses / Network Connectivity
+//  PROCEDURES FOR SYNAPTIC CONNECTIVITY IN 1-DIM
 //----------------------------------------------------------------------------
 
 print " "
@@ -278,9 +391,12 @@ func ncon() { local nc		// function to get the number of connections
 }
 
 
-//----------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
 //  Glutamate AMPA receptors in synapses from TC to RE
-//----------------------------------------------------
+//----------------------------------------------------------------------------
 
 diamTCRE = narrowdiam		// diameter of connectivity for TC->RE
 nTCRE = ncon(diamTCRE)	// nb of RE cells recampapost, PYlist, TClisteiving synapses from one TC cell
@@ -289,10 +405,11 @@ for i=0,nthalamiccells-1 {
    for j=i-diamTCRE,i+diamTCRE {
 	jbound = j
 	if (jbound < 0) jbound = abs(j) - 1
-	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
+	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1 
 
 	// presynaptic is TC[i], postsynaptic is RE[j] 
 	TC[i].soma RE[jbound].TClist.append(new NetCon(&v(0.5), RE[jbound].ampapost, 0, axondelay, 1))
+	//printf("[%d,%d], ",i,jbound)
    }
 }
 
@@ -301,9 +418,10 @@ print "<< ",RE[0].TClist.count()," AMPA-MEDIATED SYNAPTIC CONTACTS FROM TC TO RE
 print " "
 
 
-//---------------------------------------
+
+//----------------------------------------------------------------------------
 //  GABAa receptors in intra-RE synapses
-//---------------------------------------
+//----------------------------------------------------------------------------
 
 diamRERE = narrowdiam		// diameter of connectivity for RE->RE
 nRERE = ncon(diamRERE)	// nb of RE cells receiving synapses from one RE cell
@@ -316,6 +434,7 @@ for i=0,nthalamiccells-1 {
 
 	// presynaptic is RE[i], postsynaptic is RE[j] 
 	RE[i].soma RE[jbound].REgabaalist.append(new NetCon(&v(0.5), RE[jbound].gabaapost, 0, axondelay, 1))
+	//printf("[%d,%d], ",i,jbound)
    }
 }
 	
@@ -324,9 +443,9 @@ print "<< ",RE[0].REgabaalist.count()," GABAa-MEDIATED SYNAPTIC CONTACTS FROM RE
 print " "
 
 
-//--------------------------------------------------
+//----------------------------------------------------------------------------
 //  GABAa receptors in synapses from RE to TC cells
-//--------------------------------------------------
+//----------------------------------------------------------------------------
 
 diamRETC = narrowdiam		// diameter of connectivity from RE->TC
 nRETC = ncon(diamRETC)	// nb of RE cells receiving synapses from one TC cell
@@ -339,6 +458,7 @@ for i=0,nthalamiccells-1 {
 
 	// presynaptic is RE[i], postsynaptic is TC[j] 
 	RE[i].soma TC[jbound].REgabaalist.append(new NetCon(&v(0.5), TC[jbound].gabaapost, 0, axondelay, 1))
+	//printf("[%d,%d], ",i,jbound)
    }
 }
 	
@@ -347,9 +467,10 @@ print "<< ",TC[jbound].REgabaalist.count()," GABAa-MEDIATED SYNAPTIC CONTACTS FR
 print " "
 
 
-//--------------------------------------------------
+
+//----------------------------------------------------------------------------
 //  GABAb receptors in synapses from RE to TC cells
-//--------------------------------------------------
+//----------------------------------------------------------------------------
 
 // use same diameters and connectivity as GABAa receptors (colocalized)
 objectvar gababsyn
@@ -361,7 +482,6 @@ for i=0,nthalamiccells-1 {
 	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
 
 	// presynaptic is RE[i], postsynaptic is TC[j]
-	// ***Note: GABAb synapses are implemented as a list of individual synapses (in contrast to other synapse types), and so are created here
 	gababsyn = new GABAb_S()
  	TC[jbound].soma gababsyn.loc(0.5)
 	TC[jbound].gababpost.append(gababsyn)
@@ -374,47 +494,25 @@ print " "
 print "<< ",TC[0].REgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE TO TC >>"
 print " "
 
-/*
-//--------------------------------------------------
-//  GABAb receptors in synapses from RE to TC cells
-//--------------------------------------------------
 
-// use same diameters and connectivity as GABAa receptors (colocalized)
-objectvar gababsyn
-
-for i=0,nthalamiccells-1 {
-   for j=i-diamRETC,i+diamRETC {
-	jbound = j
-	if (jbound < 0) jbound = abs(j) - 1
-	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
-
-	// presynaptic is RE[i], postsynaptic is TC[j]
-	RE[i].soma TC[jbound].REgabablist.append(new NetCon(&v(0.5), TC[jbound].gababpost, 0, axondelay, 1))
-	//printf("[%d,%d], ",i,jbound)
-   }
-}
-	
-print " "
-print "<< ",TC[0].REgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM RE TO TC >>"
-print " "
-*/
-
-//-----------------------------------------------------
+//----------------------------------------------------------------------------
 //  Glutamate AMPA receptors in synapses from PY to PY
-//-----------------------------------------------------
+//----------------------------------------------------------------------------
 
 diamPYPY = narrowdiam		// diameter of connectivity for PY->PY
 nPYPY = ncon(diamTCRE)	// nb of PY cells receiving synapses from one PY cell
 
 for i=0,ncorticalcells-1 {
    for j=i-diamPYPY,i+diamPYPY {
+	//synfile.printf("<< AMPA receptor from PY cell %d to PY cell %d >>\n",i,j)
 	jbound = j
 	if (jbound < 0) jbound = abs(j) - 1
 	if (jbound > ncorticalcells-1) jbound = 2 * ncorticalcells - jbound - 1
 	
 	// presynaptic is PY[i], postsynaptic is PY[j] 
 	//if (i != jbound) PY[i].soma PY[jbound].PYlist.append(new NetCon(&v(0.5), PY[jbound].ampapostPY, 0, axondelay, 1))
-	PY[i].soma PY[jbound].PYlist.append(new NetCon(&v(0.5), PY[jbound].ampapostPY, 0, axondelay, 1))	
+	PY[i].soma PY[jbound].PYlist.append(new NetCon(&v(0.5), PY[jbound].ampapostPY, 0, axondelay, 1))
+	//printf("[%d,%d], ",i,jbound)
    }
 }
 
@@ -422,11 +520,14 @@ print " "
 print "<< ",PY[0].PYlist.count()," AMPA-MEDIATED SYNAPTIC CONTACTS FROM PY TO PY >>"
 print " "
 
+	
 
 
-//------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
 //  Glutamate AMPA receptors in synapses from PY to IN
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 
 diamPYIN = narrowdiam		// diameter of connectivity for PY->IN
 nPYIN = ncon(diamPYIN)	
@@ -438,7 +539,8 @@ for i=0,ncorticalcells-1 {
 	if (jbound > ncorticalcells-1) jbound = 2 * ncorticalcells - jbound - 1
 
 	// presynaptic is PY[i], postsynaptic is IN[j] 
-	PY[i].soma IN[jbound].PYlist.append(new NetCon(&v(0.5), IN[jbound].ampapost, 0, axondelay, 1))	
+	PY[i].soma IN[jbound].PYlist.append(new NetCon(&v(0.5), IN[jbound].ampapost, 0, axondelay, 1))
+	//printf("[%d,%d], ",i,jbound)
    }
 }
 
@@ -448,9 +550,9 @@ print " "
 
 
 
-//--------------------------------------------------
+//----------------------------------------------------------------------------
 //  GABAa receptors in synapses from IN to PY cells
-//--------------------------------------------------
+//----------------------------------------------------------------------------
 
 diamINPY = narrowdiam		// diameter of connectivity from IN->PY
 nINPY = ncon(diamINPY)	
@@ -461,7 +563,7 @@ for i=0,ncorticalcells-1 {
 	if (jbound < 0) jbound = abs(j) - 1
 	if (jbound > ncorticalcells-1) jbound = 2 * ncorticalcells - jbound - 1
 
-	// presynaptic is IN[i], postsynaptic is PY[j]
+	// presynaptic is IN[i], postsynaptic is PY[j] 
 	IN[i].soma PY[jbound].INgabaalist.append(new NetCon(&v(0.5), PY[jbound].gabaapost, 0, axondelay, 1))
 	//printf("[%d,%d], ",i,jbound)
    }
@@ -472,9 +574,9 @@ print "<< ",PY[0].INgabaalist.count()," GABAa-MEDIATED SYNAPTIC CONTACTS FROM IN
 print " "
 
 
-//--------------------------------------------------
+//----------------------------------------------------------------------------
 //  GABAb receptors in synapses from IN to PY cells
-//--------------------------------------------------
+//----------------------------------------------------------------------------
 
 // use same diameters and connectivity as GABAa receptors (colocalized)
 
@@ -485,7 +587,6 @@ for i=0,ncorticalcells-1 {
 	if (jbound > ncorticalcells-1) jbound = 2 * ncorticalcells - jbound - 1
 
 	// presynaptic is IN[i], postsynaptic is PY[j]
-	// ***Note: GABAb synapses are implemented as a list of individual synapses (in contrast to other synapse types), and so are created here
 	gababsyn = new GABAb_S()
  	PY[jbound].soma gababsyn.loc(0.5)
 	PY[jbound].gababpost.append(gababsyn) 
@@ -498,29 +599,7 @@ print " "
 print "<< ",PY[0].INgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM IN TO PY >>"
 print " "
 
-/*
-//--------------------------------------------------
-//  GABAb receptors in synapses from IN to PY cells
-//--------------------------------------------------
 
-// use same diameters and connectivity as GABAa receptors (colocalized)
-
-for i=0,ncorticalcells-1 {
-   for j = i-diamINPY, i+diamINPY {
-	jbound = j
-	if (jbound < 0) jbound = abs(j) - 1
-	if (jbound > ncorticalcells-1) jbound = 2 * ncorticalcells - jbound - 1
-
-	// presynaptic is IN[i], postsynaptic is PY[j]
-	IN[i].soma PY[jbound].INgabablist.append(new NetCon(&v(0.5), PY[jbound].gababpost, 0, axondelay, 1))
-	//printf("[%d,%d], ",i,jbound)
-   }
-}
-	
-print " "
-print "<< ",PY[0].INgabablist.count()," GABAb-MEDIATED SYNAPTIC CONTACTS FROM IN TO PY >>"
-print " "
-*/
 
 //----------------------------------------------------------------------------
 //  Glutamate AMPA receptors in synapses from PY to RE
@@ -537,7 +616,13 @@ for (i=0;i<=ncorticalcells-1;i+=divergence) {
 	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
 
 	// presynaptic is PY[i], postsynaptic is RE[j] 
-	PY[i+divergence/2].soma RE[jbound].PYlist.append(new NetCon(&v(0.5), RE[jbound].ampapost, 0, axondelay, 1))	
+//	if (i < 100) print "PY->RE ", i, jbound
+//	if (i > 200 && i < 800)	{
+//		PY[i+divergence/2+1].soma RE[jbound].PYlist.append(new NetCon(&v(0.5), RE[jbound].ampapost, 0, axondelay, 1))
+//		print "extra:",i+divergence/2+1,jbound
+//	}
+	PY[i+divergence/2].soma RE[jbound].PYlist.append(new NetCon(&v(0.5), RE[jbound].ampapost, 0, axondelay, 1))
+	//printf("[%d,%d], ",i+divergence/2,jbound)
    }
 }
 
@@ -560,7 +645,12 @@ for (i=0;i<=ncorticalcells-1;i+=divergence) {
 	if (jbound > nthalamiccells-1) jbound = 2 * nthalamiccells - jbound - 1
 
 	// presynaptic is PY[i], postsynaptic is RE[j] 
-	PY[i+divergence/2].soma TC[jbound].PYlist.append(new NetCon(&v(0.5), TC[jbound].ampapost, 0, axondelay, 1))	
+//	if (i > 200 && i < 800) {
+//		PY[i+divergence/2+1].soma TC[jbound].PYlist.append(new NetCon(&v(0.5), TC[jbound].ampapost, 0, axondelay, 1))
+//		print "extra:",i+divergence/2+1,jbound
+//	}
+	PY[i+divergence/2].soma TC[jbound].PYlist.append(new NetCon(&v(0.5), TC[jbound].ampapost, 0, axondelay, 1))
+	//printf("[%d,%d], ",i+divergence/2,jbound)
    }
 }
 
@@ -586,6 +676,8 @@ for i=0,nthalamiccells-1 {
 
 	// presynaptic is TC[i], postsynaptic is PY[j] 
 	TC[i].soma PY[jbound+divergence/2].TClist.append(new NetCon(&v(0.5), PY[jbound+divergence/2].ampapostTC, 0, axondelay, 1))
+//	if (jbound > 200 && jbound < 800)	TC[i].soma PY[jbound+divergence/2+1].TClist.append(new NetCon(&v(0.5), PY[jbound+divergence/2+1].ampapostTC, 0, axondelay, 1))
+	//printf("[%d,%d], ",i,jbound+divergence/2)
    }
 }
 
@@ -609,7 +701,10 @@ for i=0,nthalamiccells-1 {
 	if (jbound > ncorticalcells-1) jbound = 2 * ncorticalcells - jbound - divergence
 
 	// presynaptic is TC[i], postsynaptic is IN[j] 
+	//if (i < 10) print "TC->IN ", i, jbound
 	TC[i].soma IN[jbound+divergence/2].TClist.append(new NetCon(&v(0.5), IN[jbound+divergence/2].ampapost, 0, axondelay, 1))
+//	if (jbound > 200 && jbound < 800)	TC[i].soma IN[jbound+divergence/2+1].TClist.append(new NetCon(&v(0.5), IN[jbound+divergence/2+1].ampapost, 0, axondelay, 1))
+	//printf("[%d,%d], ",i,jbound+divergence/2)
    }
 }
 
@@ -642,6 +737,37 @@ print " "
 	Cdur_GABAb_S = 0.3
 
 
+//----------------------------------------------------------------------------
+//  Gap Junctions from PY to PY
+//----------------------------------------------------------------------------
+/*
+nPYPYgap = 1	// nb of PY cells receiving gap junctions from one PY cell
+
+objectvar pypyGap[ncorticalcells][nPYPYgap*2]
+
+for i=nPYPY,ncorticalcells-1-nPYPYgap {
+//for i=45,55 {
+   for j=0,nPYPYgap-1 {
+	pypyGap[i][j] = new gap()
+//	print "setpointer:",i+j+1,j,i
+	PY[i+j+1].soma pypyGap[i][j].loc(0.5)		// postsynaptic is PY[j] 
+	setpointer pypyGap[i][j].vgap, PY[i].soma.v	// presynaptic is PY[i]
+	pypyGap[i][j+nPYPYgap] = new gap()
+	PY[i-j-1].soma pypyGap[i][j+nPYPYgap].loc(0.5)		// postsynaptic is PY[j]
+//	print "setpointer:",i-j-1,j,i 
+	setpointer pypyGap[i][j+nPYPYgap].vgap, PY[i].soma.v	// presynaptic is PY[i]
+	pypyGap[i][j].r = 1.25e6*0
+	pypyGap[i][j+nPYPYgap].r = 1.25e6*0
+   }
+}
+*/
+
+Alpha_AMPA_S = 0.94		// kinetics from simplex with short pulses
+Beta_AMPA_S = 0.18
+Cmax_AMPA_S = 0.5
+Cdur_AMPA_S = 0.3
+Erev_AMPA_S = 0
+
 
 proc assign_synapses() {	// procedure to assign syn conductances 
 				// params: 1=intraRE (RERE), 2=GABAa in TC (RETC),
@@ -657,8 +783,7 @@ proc assign_synapses() {	// procedure to assign syn conductances
     for j=0, TC[i].REgabaalist.count()-1 {
 	TC[i].REgabaalist.object(j).weight = $2 / nRETC
     }
-    //for j=0, TC[i].REgabablist.count()-1 {
-	for j=0, TC[i].gababpost.count()-1 {
+    for j=0, TC[i].gababpost.count()-1 {
 	TC[i].gababpost.object(j).gmax = $3 / nRETC
 	//TC[i].REgabablist.object(j).weight = $3 / nRETC
     }
@@ -676,7 +801,6 @@ proc assign_synapses() {	// procedure to assign syn conductances
   for i=0, ncorticalcells-1 {
     for j=0, PY[i].PYlist.count()-1 {
 	PY[i].PYlist.object(j).weight = $5 / nPYPY
-	//print "PY", i, j, PY[i].PYlist.object(j).weight
     }
     for j=0, IN[i].PYlist.count()-1 {
 	IN[i].PYlist.object(j).weight = $6 / nPYIN
@@ -684,8 +808,7 @@ proc assign_synapses() {	// procedure to assign syn conductances
     for j=0, PY[i].INgabaalist.count()-1 {
 	PY[i].INgabaalist.object(j).weight = $7 / nINPY
     }
-    //for j=0, PY[i].INgabablist.count()-1 {
-	for j=0, PY[i].gababpost.count()-1 {
+    for j=0, PY[i].gababpost.count()-1 {
 	PY[i].gababpost.object(j).gmax = $8 / nINPY
 	//PY[i].INgabablist.object(j).weight = $8 / nINPY
     }
@@ -696,47 +819,68 @@ proc assign_synapses() {	// procedure to assign syn conductances
 	IN[i].TClist.object(j).weight = $12 / nTCIN
     }
   }
-  // intra-cortical
-  print "PYPY-AMPA_weight = ", PY[0].PYlist.object(0).weight
-  print "PYIN-AMPA_weight = ", IN[0].PYlist.object(0).weight
-  print "INPY-GABAA_weight = ", PY[0].INgabaalist.object(0).weight
-  print "INPY-GABAB_weight = ", PY[0].gababpost.object(0).gmax
-  //print "INPY-GABAB_weight = ", PY[0].INgabablist.object(0).weight
+// intra-cortical
+print "PYPY-AMPA_weight = ", PY[0].PYlist.object(0).weight
+print "PYIN-AMPA_weight = ", IN[0].PYlist.object(0).weight
+print "INPY-GABAA_weight = ", PY[0].INgabaalist.object(0).weight
+print "INPY-GABAB_weight = ", PY[0].gababpost.object(0).gmax
 
-  // intra-thalamic
-  print "TCRE-AMPA_weight = ", RE[0].TClist.object(0).weight
-  print "RETC-GABAA_weight = ", TC[0].REgabaalist.object(0).weight
-  print "RETC-GABAB_weight = ", TC[0].gababpost.object(0).gmax
-  //print "RETC-GABAB_weight = ", TC[0].REgabablist.object(0).weight
-  print "RERE-GABAA_weight = ", RE[0].REgabaalist.object(0).weight
+// intra-thalamic
+print "TCRE-AMPA_weight = ", RE[0].TClist.object(0).weight
+print "RETC-GABAA_weight = ", TC[0].REgabaalist.object(0).weight
+print "RETC-GABAB_weight = ", TC[0].gababpost.object(0).gmax
+print "RERE-GABAA_weight = ", RE[0].REgabaalist.object(0).weight
 
-  // thalamo-cortical 
-  print "PYTC-AMPA_weight = ", TC[0].PYlist.object(0).weight
-  print "PYRE-AMPA_weight = ", RE[0].PYlist.object(0).weight
-  print "TCPY-AMPA_weight = ", PY[0].TClist.object(0).weight
-  print "TCIN-AMPA_weight = ", IN[0].TClist.object(0).weight
+// thalamo-cortical 
+print "PYTC-AMPA_weight = ", TC[0].PYlist.object(0).weight
+print "PYRE-AMPA_weight = ", RE[0].PYlist.object(0).weight
+print "TCPY-AMPA_weight = ", PY[0].TClist.object(0).weight
+print "TCIN-AMPA_weight = ", IN[0].TClist.object(0).weight
 
 }
 
+proc assign_focal_gabaa_synapses() {	// procedure to assign syn conductances 
+				// params: 1=GABAa in TC (RETC), 2=GABAa INPY
+				// 3 = lower limit id
+				// 4 = upper limit id
+  for i=$3, $4 {
+    for j=0, TC[i].gabaalist.count()-1 {
+	TC[i].REgabaalist.object(j).gmax = $1 / nRETC
+    }
+    for j=0, TC[i].gabablist.count()-1 {
+	TC[i].REgabablist.object(j).gmax = $2 / nRETC
+    }
+  }
+}
 
-//---------------------------------------------------------------------------
-//   Assign potassium leak and Ih current strengths in TC cells 
-//---------------------------------------------------------------------------
 
 objectvar rgh, rk1
 rgh = new Random()
 rk1 = new Random()
+//rgh.uniform(1.5e-5,2e-5)
+//rk1.uniform(0.003,0.005)
+//rgh.normal(17.5,0.8)        //random number generator behaves weirdly for very small numbers, so multiply by 10^-6 below
+//rk1.normal(40,3)
 rgh.normal(17.5,0.0008)        //random number generator behaves weirdly for very small numbers, so multiply by 10^-6 below
 rk1.normal(40,0.003)
 
 // setup TC cells in resting mode (no spontaneous oscillation)
 for i=0,nthalamiccells-1 { 
-  TC[i].soma.ghbar_iar = rgh.repick() * 10^-6   
-  TC[i].kl.gmax = rk1.repick() * 10^-4         
+	TC[i].soma.ghbar_iar = rgh.repick() * 10^-6   //1.5e-5, 0.66e-3 for human
+	TC[i].kl.gmax = rk1.repick() * 10^-4         //0.003
+//  TC[i].soma.ghbar_iar = 1.5*10^-5 //, 0.66e-3 for human
+//  TC[i].kl.gmax = 0.003
   print "TC(",i,") gh:",TC[i].soma.ghbar_iar," gmax:",TC[i].kl.gmax
 
 }
 
+
+// setup first TC cell as an initiator (spontaneous waxing-waning)
+// TC[0].soma.ghbar_iar = 2.5e-5	// long interspindle period
+// TC[0].kl.gmax = 0.005
+
+//TC[50].soma.ghbar_iar = 2e-5	// shorter interspindle period
+//TC[50].kl.gmax = 0.005
 
 
 //----------------------------------------------------------------------------
@@ -777,14 +921,13 @@ if (largePY==1) {
 if (smallPY==1) {
   //for i = 0, (ncorticalcells/20)-1 PY[i*(ncorticalcells/5)+9].soma {
   for i = 0, (ncorticalcells/20)-1 PY[i*(ncorticalcells/5-1)+11].soma {
-	//print "PY(",(i*(ncorticalcells/5-1)+11),") current clamp"
 	PYstim[i] = new IClamp(0.5)
 	PYstim[i].del = stimtime
 	PYstim[i].dur = 100
 	PYstim[i].amp = 0.7
+	//printf("iClamp->%d\n",i*(ncorticalcells/5-1)+11)
   }
 }
-
 
 if (mediumPY==1) {
   for i = 0, (ncorticalcells/10)-3 PY[i*(ncorticalcells/10+2)+mediumPYoffset].soma { //most were done with +1
@@ -822,7 +965,56 @@ for i = 0, (nthalamiccells/5)-1 TC[i*(nthalamiccells/20-1)+10].soma {
 */
 
 
+//----------------------------------------------------------------------------
+//  setup stimulus vectors and synapses to pyramidal cell(s)
+//----------------------------------------------------------------------------
 
+
+/*
+objectvar jitter
+jitter = new Random()
+
+jitter.uniform(-1,1)
+
+
+for ctr=0,nstimsynapses-1 {
+   ampavec[ctr] = new Vector()
+   ampatimevec[ctr] = new Vector()
+   Vampa[ctr] = 0
+
+   ampavec[ctr].append(-60)
+   ampatimevec[ctr].append(tstart)
+
+   for i=0, nstimuli-1 {
+     for j=0, nhfburst-1 {
+       stime = timefirststimulus + i*timestimuli + j*timehfburst + jitter.repick()
+       ampatimevec[ctr].append(stime)
+       ampavec[ctr].append(10)
+       ampatimevec[ctr].append(stime+2*Dt)
+       ampavec[ctr].append(-60)
+
+     }
+   }
+
+   ampavec[ctr].play(&Vampa[ctr],ampatimevec[ctr])
+}
+
+objectvar pyampa[nstimsynapses]
+objref netcon
+
+for i=0,nstimsynapses-1 {
+ 
+
+//   pyampa[i] = new AMPA_S()
+//   PY[50].soma pyampa[i].loc(0.5)
+//   PY[40 + 10 * int(i/50)].soma pyampa[i].loc(0.5)	 
+//   setpointer pyampa[i].pre, Vampa[i]
+//   pyampa[i].gmax = 0 //0.05
+   
+}
+
+
+*/
 
 //----------------------------------------------------------------------------
 //  add graphs
@@ -861,19 +1053,72 @@ i=watchneuron
 	addgraph(gtxt,-120,40)
 //}
 
+
 addfieldgraph("field",-5,5)
+//addfieldgraph("fieldg",-0.5,0.5)
+//addgraph("ampafield",-10,10)
+//addgraph("gabaafield",-.5,.5)
+//addgraph("gababfield",-.1,.1)
+//addgraph("gababTCfield",-.1,.1)
 
 
+//single neuron
+/*
+addfieldgraph("field",-100,100)
+//addfieldgraph("fieldg",-0.005,0.005)
+//addgraph("ampafield",-100,100)
+//addgraph("gabaafield",-100,100)
+//addgraph("gababfield",-.01,10)
+//addgraph("gababTCfield",-.01,1)
+*/
+
+ 
 //-----------------------------------------------------------------------------
 // Make raster plots
 //-----------------------------------------------------------------------------
+/*
+objref g, spikeglyph, boxglyph
+// Glyph to make the line of a spike
+spikeglyph = new Glyph()
+spikeglyph = spikeglyph.path()
+spikeglyph = spikeglyph.m(0,0)
+spikeglyph = spikeglyph.l(0,0.9)
+spikeglyph = spikeglyph.s(1,1)
+
+// Glyphy to draw the box behind the inbibitory spikes
+boxglyph = new Glyph()
+boxglyph = boxglyph.path()
+boxglyph = boxglyph.m(0,0)
+boxglyph = boxglyph.l(tstop,0)
+boxglyph = boxglyph.l(tstop,ncorticalcells)
+boxglyph = boxglyph.l(0,    ncorticalcells)
+boxglyph = boxglyph.close()
+boxglyph = boxglyph.fill(8)
+
+g = Graph[5]
+g.size(0,1000,0,80)
+
+proc plotraster() {
+    g.erase_all()
+    g.glyph(boxglyph, 0, ncorticalcells+1)
+    
+	for i=0, PYidvec.size()-1 {
+		g.glyph(spikeglyph, PYtimevec.x(i), PYidvec.x(i))
+	}
+	
+	for i=0, INidvec.size()-1 {
+		g.glyph(spikeglyph, INtimevec.x(i), INidvec.x(i)-ncorticalcells+ncorticalcells)
+	}
+}
+
+*/
 
 
 proc rasterplot() {
   print "plot:", tstart, tstop
   //PYtimevec.printf()
   //PYidvec.printf()
-  plotlen = 3000 
+  plotlen = tstop //13000
   g1 = new Graph(0)
   g1.label(0.5, 0.95, "PY")
   g1.view(tstart,0,plotlen,100,100,500,400,300)
@@ -901,11 +1146,11 @@ proc rasterplot() {
 proc writedatafile()  {
 
   membranedatafile.wopen("membrane_data.txt")
-
+////synfile.wopen("/cygdrive/c/Users/aknox/Desktop/synapses.txt")
 
 //only take every other time point to avoid annoying memory errors.
   membranedatafile.printf("%d\n",TCVtrace[0].size())
-  membranedatafile.printf("%d\n",ncorticalcells)
+  membranedatafile.printf("%d\n",ncorticalcells)		//also needs fixing
   for i=0,nthalamiccells-1 {
     TCVtrace[i].printf(membranedatafile)
   }
@@ -919,12 +1164,13 @@ proc writedatafile()  {
     INVtrace[i].printf(membranedatafile)
   }
 
+  
   membranedatafile.close()
 }
 
-//-------------------------------------------------------------------------------
-// Save state - state will automatically load if trans is set to a non-zero value
-//-------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+// Save state
+//--------------------------------------------------------------------------
 
 objref sstate, statefile 
 
@@ -936,10 +1182,9 @@ proc writestate()  {
    sstate.fwrite(statefile)
 }
 
-
-//---------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////
 //  Code for dealing with field potentials
-//---------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////
 
 func xfield()  {local i, j, tmp, Ni, Re, x, cw   
 //$1 is Re, $2 is distance from nearest neuron, $3 is neuron to which probe is closest
@@ -950,21 +1195,112 @@ func xfield()  {local i, j, tmp, Ni, Re, x, cw
    Ni = $3
 
    for i = fieldlower, fieldupper {
+//	if (PY[i].soma.v(0.5) < -70) {
+	   tmp = 0
+	   for j = 0, PY[i].gababpost.count()-1 {
+		tmp += PY[i].gababpost.object(j).i
+	   }
+
+	   tmp += PY[i].gabaapost.i  + PY[i].soma.ik_im + PY[i].ampapostPY.i + PY[i].ampapostTC.i
+
+	   total_field += tmp / sqrt(x^2 + 400*(Ni-i)^2)
+//	}
+   }
+   return total_field * Re/4/PI
+}
+
+func xfieldg()  {local i, j, tmp, Ni, Re, x, cw   
+//$1 is Re, $2 is distance from nearest neuron, $3 is neuron to which probe is closest
+//assumes field comes from PY neurons, which are in a row spaced 20um apart
+   total_field = 0
+   Re = $1
+   x = $2
+   Ni = $3
+
+   for i = fieldlower, fieldupper {
 	tmp = 0
 	for j = 0, PY[i].gababpost.count()-1 {
-	   tmp += PY[i].gababpost.object(j).i
+		tmp += PY[i].gababpost.object(j).g
 	}
-	tmp += PY[i].gabaapost.i  + PY[i].soma.ik_im + PY[i].ampapostPY.i + PY[i].ampapostTC.i
-	//tmp += PY[i].gababpost.i + PY[i].gabaapost.i  + PY[i].soma.ik_im + PY[i].ampapostPY.i + PY[i].ampapostTC.i
+
+	tmp += (PY[i].gabaapost.g - PY[i].ampapostPY.g - PY.ampapostTC.g) //+ PY[i].soma.ik_im
+
+
 	total_field += tmp / sqrt(x^2 + 400*(Ni-i)^2)
    }
-   //print "t=", t, "total_field = ", total_field * Re/4/PI
    return total_field * Re/4/PI
+}
+
+func ampa()  {local i, Ni, Re, x   
+//$1 is Re, $2 is distance from nearest neuron, $3 is neuron to which probe is closest
+//assumes field comes from PY neurons, which are in a row spaced 20um apart
+   total_field = 0
+   Re = $1
+   x = $2
+   Ni = $3
+   for i = fieldlower, fieldupper {
+	total_field += (PY[i].ampapostPY.i) //+ PY[i].ampapostTC.i) // sqrt(x^2 + 400*(Ni-i)^2)
+//	total_field += PY[i].soma.ik_im // sqrt(x^2 + 400*(Ni-i)^2)
+   }
+   return total_field //* Re/4/PI
+}
+
+func gabaa()  {local i, Ni, Re, x   
+//$1 is Re, $2 is distance from nearest neuron, $3 is neuron to which probe is closest
+//assumes field comes from PY neurons, which are in a row spaced 20um apart
+   total_field = 0
+   Re = $1
+   x = $2
+   Ni = $3
+   for i = fieldlower, fieldupper {
+	total_field += PY[i].ampapostTC.i // sqrt(x^2 + 400*(Ni-i)^2)
+   }
+   return total_field //* Re/4/PI
+}
+
+func gabab()  {local i, Ni, Re, x  
+//$1 is Re, $2 is distance from nearest neuron, $3 is neuron to which probe is closest
+//assumes field comes from PY neurons, which are in a row spaced 20um apart
+   total_field = 0
+   Re = $1
+   x = $2
+   Ni = $3
+   for i = fieldlower, fieldupper {
+	tmp = 0
+	for j = 0, PY[i].gababpost.count()-1 {
+		tmp += PY[i].gababpost.object(j).i
+	}
+	total_field += tmp // sqrt(x^2 + 400*(Ni-i)^2)
+   }
+   return total_field //* Re/4/PI
+   //return PY[0].gababpost.object(0).G
+}
+
+func gababTC()  {local i, Ni, Re, x   
+//$1 is Re, $2 is distance from nearest neuron, $3 is neuron to which probe is closest
+//assumes field comes from PY neurons, which are in a row spaced 20um apart
+   total_field = 0
+   Re = $1
+   x = $2
+   Ni = $3
+   for i = fieldlower, fieldupper {
+	tmp = 0
+	for j = 0, TC.gababpost.count()-1 {
+	   tmp += TC[i].gababpost.object(j).i 
+	}
+	total_field += tmp / sqrt(x^2 + 400*(Ni-i)^2)
+   }
+   return total_field //* Re/4/PI
 }
 
 proc advance() {
    fadvance()
    field = xfield(230,fielddist,watchneuron)
+//   fieldg = xfieldg(230,fielddist,watchneuron)
+//   ampafield = ampa(230,fielddist,watchneuron)
+//   gabaafield = gabaa(230,fielddist,watchneuron)
+//   gababfield = gabab(230,fielddist,watchneuron)
+//   gababTCfield = gababTC(230,fielddist,watchneuron)
 }
 
 
@@ -993,88 +1329,17 @@ proc text() {
   addline(gtxt)
 }
 
+//text()
+
+
 print " "
 print "Use procedure text() to create a new window with actual parameters"
 print "Use procedure assign_synapses() to change synaptic conductances"
 print " "
 
-proc printTCinfo(){
-	index=$1
-	print " "
-	print "--------- TC Parameter values (index=",index,") ------------"
-	print " "
-
-    print "diam=",TC[index].soma.diam,"\t L=",TC[index].soma.L," \t Cm=",TC[index].soma.cm," \t Ra=",TC[index].soma.Ra
-    print "kl_gmax=",TC[index].kl.gmax,"\t Erev_kleak="//,TC[index].Erev_kleak
-    print "g_pas=",TC[index].soma.g_pas," \t e_pas=",TC[index].soma.e_pas," \t vinit=", TC[index].soma.v(0.5)
-    print "gnabar_hh2=",TC[index].soma.gnabar_hh2," \t ena=", TC[index].soma.ena
-    print "gkbar_hh2=",TC[index].soma.gkbar_hh2," \t ek=",TC[index].soma.ek," \t vtraub_hh2=", TC[index].soma.vtraub_hh2
-    print "gcabar_it=",TC[index].soma.gcabar_it," \t eca=",TC[index].soma.eca," \t cai=", TC[index].soma.cai," \t cao=", TC[index].soma.cao
-    print "shift_it=",TC[index].soma.shift_it," \t taubase_it=",TC[index].soma.taubase_it
-    print "depth_cad=",TC[index].soma.depth_cad," \t taur_cad=",TC[index].soma.taur_cad," \t cainf_cad=", TC[index].soma.cainf_cad," \t kt_cad=", TC[index].soma.kt_cad
-    print "ghbar_iar=",TC[index].soma.ghbar_iar," \t eh=",TC[index].soma.eh," \t nca_iar=", TC[index].soma.nca_iar," \t k2_iar=", TC[index].soma.k2_iar
-    print "cac_iar=",TC[index].soma.cac_iar," \t nexp_iar=",TC[index].soma.nexp_iar," \t k4_iar=", TC[index].soma.k4_iar," \t Pc_iar=", TC[index].soma.Pc_iar," \t ginc_iar=", TC[index].soma.ginc_iar
-
-	print " "
-	print "----------------- TC Parameter values (end) --------------------"
-	print " "
-}
-
-proc printREinfo(){
-	index=$1
-	print " "
-	print "---------- RE Parameter values (index=",index,") --------------"
-	print " "
-
-	print "diam=",RE[index].soma.diam,"\t L=",RE[index].soma.L," \t Cm=",RE[index].soma.cm," \t Ra=",RE[index].soma.Ra
-	print "g_pas=",RE[index].soma.g_pas," \t e_pas=",RE[index].soma.e_pas," \t vinit=", RE[index].soma.v(0.5)
-	print "gnabar_hh2=",RE[index].soma.gnabar_hh2," \t ena=", RE[index].soma.ena
-	print "gkbar_hh2=",RE[index].soma.gkbar_hh2," \t ek=",RE[index].soma.ek," \t vtraub_hh2=", RE[index].soma.vtraub_hh2
-	print "gcabar_it2=",RE[index].soma.gcabar_it2," \t eca=",RE[index].soma.eca," \t cai=", RE[index].soma.cai," \t cao=", RE[index].soma.cao
-	print "shift_it2=",RE[index].soma.shift_it2," \t taubase_it2=",RE[index].soma.taubase_it2," \t qm_it2=", RE[index].soma.qm_it2," \t qh_it2=", RE[index].soma.qh_it2
-	print "depth_cad=",RE[index].soma.depth_cad," \t taur_cad=",RE[index].soma.taur_cad," \t cainf_cad=", RE[index].soma.cainf_cad," \t kt_cad=", RE[index].soma.kt_cad
-
-	print " "
-	print "----------------- RE Parameter values (end) --------------------"
-	print " "
-}
-
-proc printPYinfo(){
-    index=$1
-    print " "
-    print "------ PY Parameter values (index=",index,") ---------"
-    print " "
-    
-    print "diam=",PY[index].soma.diam,"\t L=",PY[index].soma.L," \t Cm=",PY[index].soma.cm," \t Ra=",PY[index].soma.Ra
-    print "g_pas=",PY[index].soma.g_pas," \t e_pas=",PY[index].soma.e_pas," \t vinit=", PY[index].soma.v(0.5)
-    print "gnabar_hh2=",PY[index].soma.gnabar_hh2," \t ena=", PY[index].soma.ena
-    print "gkbar_hh2=",PY[index].soma.gkbar_hh2," \t ek=",PY[index].soma.ek," \t vtraub_hh2=", PY[index].soma.vtraub_hh2
-    print "gkbar_im=",PY[index].soma.gkbar_im," \t taumax_im=",PY[index].soma.taumax_im
-    
-    print " "
-    print "-------- PY Parameter values (end) --------"
-    print " "
-}
-
-proc printINinfo(){
-    index=$1
-    print " "
-    print "------ IN Parameter values (index=",index,") ---------"
-    print " "
-    
-    print "diam=",IN[index].soma.diam,"\t L=",IN[index].soma.L," \t Cm=",IN[index].soma.cm," \t Ra=",IN[index].soma.Ra
-    print "g_pas=",IN[index].soma.g_pas," \t e_pas=",IN[index].soma.e_pas," \t vinit=", IN[index].soma.v(0.5)
-    print "gnabar_hh2=",IN[index].soma.gnabar_hh2," \t ena=", IN[index].soma.ena
-    print "gkbar_hh2=",IN[index].soma.gkbar_hh2," \t ek=",IN[index].soma.ek," \t vtraub_hh2=", IN[index].soma.vtraub_hh2
-    
-    print " "
-    print "-------- IN Parameter values (end) --------"
-    print " "
-}
-	
 proc myrun() {
-
-	run()
+    run()
+    //plotraster()
 	rasterplot()
 }
 
